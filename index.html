@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USI Space Game 3D</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+
+    /* 3D main canvas — only covers the game area, not the right panel */
+    #gameCanvas3D {
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* 3D minimap canvas - positioned in top-right panel area */
+    #minimapCanvas3D {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* 2D overlay canvas on top — handles all mouse/keyboard input */
+    #uiOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      pointer-events: auto;
+    }
+  </style>
+
+  <!-- Three.js r128 (local) -->
+  <script src="three.min.js"></script>
+</head>
+<body>
+  <!-- 3D world canvas -->
+  <canvas id="gameCanvas3D"></canvas>
+
+  <!-- 3D minimap canvas -->
+  <canvas id="minimapCanvas3D"></canvas>
+
+  <!-- 2D UI overlay canvas -->
+  <canvas id="uiOverlay"></canvas>
+
+  <!-- Game scripts in dependency order -->
+  <script src="language.js?v=1"></script>
+  <script src="constants.js?v=15"></script>
+  <script src="vec.js?v=14"></script>
+  <script src="entities.js?v=5"></script>
+  <script src="globals.js?v=22"></script>
+  <script src="three-minimap.js?v=14"></script>
+  <script src="ship-models.js?v=2"></script>
+  <script src="three-render.js?v=94"></script>
+  <script src="three-objects.js?v=86"></script>
+  <script src="three-init.js?v=25"></script>
+  <script src="renderer.js?v=32"></script>
+  <script src="planeten.js?v=63"></script>
+  <script src="ai.js?v=24"></script>
+  <script src="input.js?v=51"></script>
+  <script src="game.js?v=24"></script>
+  <script src="ui.js?v=22"></script>
+
+  <script>
+    /* Resize all canvases — use debouncing to avoid mid-frame issues */
+    var _resizeTimeout = null;
+    function resizeCanvases() {
+      var c3d = document.getElementById('gameCanvas3D');
+      var cmm = document.getElementById('minimapCanvas3D');
+      var c2d = document.getElementById('uiOverlay');
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+
+      c2d.width  = w;
+      c2d.height = h;
+
+      /* Update globals if already set */
+      if (typeof curW !== 'undefined') {
+        curW = w;
+        curH = h;
+        CalcLayout();
+
+        /* Size 3D canvas to game area only (not the right panel) */
+        var gameAreaW = GameAreaWidth + CLIP_MARGIN;
+        c3d.width  = gameAreaW;
+        c3d.height = h;
+        c3d.style.width  = gameAreaW + 'px';
+        c3d.style.height = h + 'px';
+      }
+
+      /* Update Three.js camera/renderer only if already initialized */
+      if (camera) {
+        var gameAreaW3D = c3d.width || w;
+        var h3D = c3d.height || h;
+        if (camera.type === 'PerspectiveCamera') {
+          camera.aspect = gameAreaW3D / h3D;
+          camera.updateProjectionMatrix();
+        } else if (camera.type === 'OrthographicCamera') {
+          var frustumSize = seite / zoomScale;
+          var aspect = gameAreaW3D / h3D;
+          camera.left   = -frustumSize * aspect / 2;
+          camera.right  =  frustumSize * aspect / 2;
+          camera.top    =  frustumSize / 2;
+          camera.bottom = -frustumSize / 2;
+          camera.updateProjectionMatrix();
+        }
+      }
+      if (renderer3D) {
+        var gameAreaW3D = c3d.width || w;
+        var h3D = c3d.height || h;
+        renderer3D.setSize(gameAreaW3D, h3D);
+      }
+      /* Resize minimap 3D canvas to match panel area */
+      if (typeof resizeMinimapCanvas === 'function') {
+        resizeMinimapCanvas();
+      }
+    }
+
+    window.addEventListener('resize', function() {
+      /* Debounce: wait 100ms after resize stops, then apply */
+      if (_resizeTimeout) clearTimeout(_resizeTimeout);
+      _resizeTimeout = setTimeout(resizeCanvases, 100);
+    });
+
+    /* Start the game — inline execution after all scripts loaded */
+    (function() {
+      if (typeof init === 'function') {
+        resizeCanvases();
+        init();
+        /* Resize again after init so Three.js camera/renderer are updated */
+        resizeCanvases();
+      }
+    })();
+  </script>
+</body>
+</html>

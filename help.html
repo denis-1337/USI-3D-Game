@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USI - Star Fleet | Spielanleitung</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #0a0a0f;
+      color: #d0d0d0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: 3px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      color: #FFAA00;
+      font-size: 1.3em;
+      font-weight: 400;
+      border-bottom: 1px solid rgba(255,170,0,0.2);
+      padding-bottom: 6px;
+      margin: 36px 0 16px 0;
+    }
+    h3 {
+      color: #aaa;
+      font-size: 1.05em;
+      font-weight: 400;
+      margin: 20px 0 8px 0;
+    }
+
+    p, li {
+      color: #b0b0b0;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+    ul, ol {
+      padding-left: 24px;
+      margin-bottom: 12px;
+    }
+    li { margin-bottom: 4px; }
+
+    a.back-link {
+      display: inline-block;
+      color: #FFAA00;
+      text-decoration: none;
+      font-size: 0.9em;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,170,0,0.3);
+      padding: 6px 16px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    a.back-link:hover {
+      background: rgba(255,170,0,0.1);
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+    .nav-list a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.85em;
+      padding: 4px 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 3px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .nav-list a:hover {
+      color: #FFAA00;
+      border-color: rgba(255,170,0,0.3);
+    }
+
+    /* Faction colors */
+    .f1 { color: #FF5555; }
+    .f2 { color: #55FF55; }
+    .f3 { color: #FFAA00; }
+
+    /* Ship cards */
+    .ship-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .ship-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .ship-card:hover {
+      border-color: rgba(255,170,0,0.3);
+    }
+    .ship-card svg {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 8px;
+    }
+    .ship-card .ship-name {
+      font-size: 0.95em;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .ship-card .ship-desc {
+      font-size: 0.8em;
+      color: #777;
+      line-height: 1.4;
+    }
+
+    /* Unit comparison table */
+    .unit-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.85em;
+    }
+    .unit-table th {
+      text-align: left;
+      color: #FFAA00;
+      font-weight: 400;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,170,0,0.2);
+    }
+    .unit-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: #b0b0b0;
+    }
+    .unit-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Tip box */
+    .tip {
+      background: rgba(255,170,0,0.05);
+      border-left: 3px solid #FFAA00;
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9em;
+    }
+    .tip strong { color: #FFAA00; }
+
+    /* Controls table */
+    .controls-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.85em;
+    }
+    .controls-table td {
+      padding: 5px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .controls-table td:first-child {
+      color: #FFAA00;
+      font-family: monospace;
+      white-space: nowrap;
+      width: 160px;
+    }
+    .controls-table td:last-child {
+      color: #b0b0b0;
+    }
+
+    /* RPS diagram */
+    .rps-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .rps-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 8px 0;
+      font-size: 0.9em;
+    }
+    .rps-arrow { color: #FFAA00; font-size: 1.2em; }
+
+    @media (max-width: 600px) {
+      body { padding: 16px 12px; }
+      h1 { font-size: 1.5em; }
+      .ship-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">&#8592; Zum Spiel</a>
+
+<h1>USI - STAR FLEET</h1>
+<p class="subtitle">Spielanleitung für neue Spieler</p>
+
+<ul class="nav-list">
+  <li><a href="#ziel">Spielziel</a></li>
+  <li><a href="#steuerung">Steuerung</a></li>
+  <li><a href="#einheiten">Einheiten</a></li>
+  <li><a href="#vorteile">Gegeneinander</a></li>
+  <li><a href="#planeten">Planetenbau</a></li>
+  <li><a href="#tipps">Tipps</a></li>
+</ul>
+
+<!-- ==================== SPIELZIEL ==================== -->
+<h2 id="ziel">Spielziel</h2>
+<p>
+  Du bist der Führer einer Fraktion im Weltraum. Dein Ziel:
+  <strong>alle Planeten erobern und alle feindlichen Schiffe vernichten.</strong>
+</p>
+<p>
+  Es gibt 10 Planeten und 3 Fraktionen. Du wählst eine Fraktion am Anfang.
+  Die anderen beiden werden vom Computer gesteuert.
+</p>
+<ul>
+  <li><strong>Sieg:</strong> Keine feindlichen Sektoren und keine feindlichen Schiffe mehr vorhanden.</li>
+  <li><strong>Niederlage:</strong> Du besitzt keine Sektoren und hast keine Schiffe mehr.</li>
+</ul>
+<p>
+  Jede Fraktion kann maximal 85 Schiffe gleichzeitig besitzen.
+</p>
+
+<!-- ==================== STEUERUNG ==================== -->
+<h2 id="steuerung">Steuerung</h2>
+
+<h3>Maus</h3>
+<table class="controls-table">
+  <tr><td>Linksklick + Ziehen</td><td>Schiffe markieren (Box-Auswahl)</td></tr>
+  <tr><td>Linksklick (ohne Ziehen)</td><td>Einzelnes Schiff markieren oder Deselektieren</td></tr>
+  <tr><td>Rechtsklick mit markierten Schiffen</td><td>Bewegungsbefehl: auf Planet = dorthin landen, ins Freie = dorthin fliegen</td></tr>
+  <tr><td>Rechtsklick ohne markierte Schiffe</td><td>Auswahl aufheben</td></tr>
+  <tr><td>Klick auf Mini-Map</td><td>Kamera zum gewählten Bereich bewegen</td></tr>
+  <tr><td>Kamera-Slider (rechts)</td><td>Kamerawinkel ändern (0° = von oben, 90° = perspektivisch)</td></tr>
+</table>
+
+<h3>Tastatur im Spiel</h3>
+<table class="controls-table">
+  <tr><td>1 - 8</td><td>Schiffegruppe auswählen (alle Schiffen in dieser Gruppe werden markiert)</td></tr>
+  <tr><td>!, ", #, $, %, &, /, (</td><td>Markierte Schiffe einer Gruppe zuweisen (nur mit markierten Schiffen)</td></tr>
+  <tr><td>P</td><td>Pause an/aus</td></tr>
+</table>
+
+<h3>Planetenmenü-Tasten</h3>
+<p>
+  Öffne das Planetenmenü, indem du auf einen Planeten klickst, den du besitzt.
+</p>
+<table class="controls-table">
+  <tr><td>1</td><td>Nächstes Level bauen (erweitert Planet um einen Sektor)</td></tr>
+  <tr><td>2</td><td>Soldaten produzieren</td></tr>
+  <tr><td>3</td><td>Jäger bauen (benötigt mind. 2 Sektoren)</td></tr>
+  <tr><td>4</td><td>Transporter bauen (benötigt mind. 3 Sektoren + 100 Soldaten)</td></tr>
+  <tr><td>5</td><td>Fortgeschrittener Jäger (benötigt mind. 4 Sektoren)</td></tr>
+  <tr><td>6</td><td>Forts bauen (benötigt mind. 5 Sektoren)</td></tr>
+  <tr><td>7</td><td>Bomber bauen (benötigt mind. 6 Sektoren)</td></tr>
+  <tr><td>8 oder C</td><td>Aktuellen Produktionsauftrag abbrechen</td></tr>
+  <tr><td>W oder 9</td><td>Infanterie-Modus umschalten: Angriff → Verteidigung (nur für Bodentruppen auf diesem Planeten)</td></tr>
+  <tr><td>Mausklick auf „zurück“</td><td>Planetenmenü schließen</td></tr>
+</table>
+
+<!-- ==================== EINHEITEN ==================== -->
+<h2 id="einheiten">Einheiten & Schiffe</h2>
+<p>
+  Schiffe werden auf deinen Planeten produziert und agieren automatisch im Weltall:
+  Kampfschiffe jagen und beschießen feindliche Schiffe in der Nähe,
+  und Transporter landen auf Planeten, um Soldaten zu landen und Sektoren zu erobern.
+</p>
+
+<h3>Kampfschiffe</h3>
+<p>Kampfschiffe (Typ 1–9) greifen feindliche Schiffe automatisch an, wenn sie in Reichweite sind.</p>
+
+<div class="ship-grid">
+  <div class="ship-card">
+    <img src="ship-sprites/ship_1_f1.svg" alt="Jäger">
+    <div class="ship-name">Jäger</div>
+    <div class="ship-desc">Schnelles Kampfflugzeug. Hohe Feuerrate (10 Schüss/sec), aber niedriger Einzelschaden und 75% Trefferquote. Geringe Panzerung.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_2_f1.svg" alt="Fortgeschrittener Jäger">
+    <div class="ship-name">Fortg. Jäger</div>
+    <div class="ship-desc">Ausgeglichener Kampfflugzeug. Mittlere Feuerrate (7,5 Schüss/sec), 80% Trefferquote, mittlere Panzerung.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_4_f1.svg" alt="Fortgeschrittener Jäger">
+    <div class="ship-name">Fortg. Jäger</div>
+    <div class="ship-desc">Ausgeglichener Kampfflugzeug. Mittlere Feuerrate (7,5 Schüss/sec), 80% Trefferquote, mittlere Panzerung.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_5_f1.svg" alt="Fortgeschrittener Jäger">
+    <div class="ship-name">Fortg. Jäger</div>
+    <div class="ship-desc">Ausgeglichener Kampfflugzeug. Mittlere Feuerrate (7,5 Schüss/sec), 80% Trefferquote, mittlere Panzerung.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_7_f1.svg" alt="Elite Jäger">
+    <div class="ship-name">Elite Jäger</div>
+    <div class="ship-desc">Schnelles Kampfflugzeug. Hohe Feuerrate (10 Schüss/sec), 75% Trefferquote, geringe Panzerung.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_8_f1.svg" alt="Elite Jäger">
+    <div class="ship-name">Elite Jäger</div>
+    <div class="ship-desc">Schnelles Kampfflugzeug. Hohe Feuerrate (10 Schüss/sec), 75% Trefferquote, geringe Panzerung.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_3_f1.svg" alt="Bomber">
+    <div class="ship-name">Bomber</div>
+    <div class="ship-desc">Schweres Schiff. Geringe Feuerrate (4,3 Schüss/sec), aber hohe Trefferquote (90%) und hoher Einzelschaden. Starke Panzerung, aber langsam.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_6_f1.svg" alt="Bomber">
+    <div class="ship-name">Fortg. Bomber</div>
+    <div class="ship-desc">Schweres Schiff. Geringe Feuerrate (4,3 Schüss/sec), hohe Trefferquote (90%) und hoher Einzelschaden. Starke Panzerung, langsam.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_9_f1.svg" alt="Bomber">
+    <div class="ship-name">Elite Bomber</div>
+    <div class="ship-desc">Schwerstes Kampfflugzeug. Geringe Feuerrate (4,3 Schüss/sec), hohe Trefferquote (90%) und sehr hoher Einzelschaden. Sehr starke Panzerung, langsam.</div>
+  </div>
+</div>
+
+<h3>Transporter</h3>
+<p>
+  Transporter (Typ 10–12) transportieren 100 Soldaten zum Zielplaneten.
+  Wenn sie landen, werden die Soldaten auf dem Planeten zugewiesen und Sektoren erobern.
+  Transporter benötigen 100 Soldaten zum Bauen (werden vom Planeten abgezogen).
+</p>
+
+<div class="ship-grid">
+  <div class="ship-card">
+    <img src="ship-sprites/ship_10_f1.svg" alt="Transporter">
+    <div class="ship-name">Transporter</div>
+    <div class="ship-desc">Transportiert 100 Soldaten zum Zielplaneten und landet sie dort.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_11_f1.svg" alt="Fortgeschrittener Transporter">
+    <div class="ship-name">Fortg. Transporter</div>
+    <div class="ship-desc">Transportiert 100 Soldaten zum Zielplaneten und landet sie dort.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_12_f1.svg" alt="Elite Transporter">
+    <div class="ship-name">Elite Transporter</div>
+    <div class="ship-desc">Transportiert 100 Soldaten zum Zielplaneten und landet sie dort.</div>
+  </div>
+</div>
+
+<!-- ==================== VORTEILE ==================== -->
+<h2 id="vorteile">Gegeneinander (Stein-Schere-Papier)</h2>
+<p>
+  Verschiedene Schiffstypen haben Vorteile und Nachteile gegeneinander:
+</p>
+
+<div class="rps-box">
+  <div class="rps-row">
+    <span class="f1">Jäger</span>
+    <span class="rps-arrow">&#8594; +40% Schaden gegen </span>
+    <span class="f3">Bomber</span>
+  </div>
+  <div class="rps-row">
+    <span class="f3">Bomber</span>
+    <span class="rps-arrow">&#8594; +50% Schaden gegen </span>
+    <span style="color:#AA5500">Transporter</span>
+  </div>
+  <div class="rps-row">
+    <span style="color:#AA5500">Transporter</span>
+    <span class="rps-arrow">&#8594; +35% Schaden gegen </span>
+    <span class="f1">Jäger</span>
+  </div>
+  <div class="rps-row" style="margin-top:12px; color:#777; font-size:0.85em;">
+    Fortgeschrittene Jäger: +25% gegen Bomber, –10% gegen Transporter
+  </div>
+</div>
+
+<p>Zusätzlich:</p>
+<ul>
+  <li>Schnellere Schiffe sind schwerer zu treffen (3% weniger Trefferquote pro 10 Geschwindigkeitseinheiten Unterschied).</li>
+  <li>Jäger feuern sehr schnell (10 Schüss/sec), aber mit 75% Trefferquote.</li>
+  <li>Bomber feuern langsam (4,3 Schüss/sec), haben aber 90% Trefferquote und hohen Schaden.</li>
+  <li>Schilde regenerieren sich langsam im Laufe der Zeit.</li>
+</ul>
+
+<!-- ==================== PLANETENBAU ==================== -->
+<h2 id="planeten">Planetenbau</h2>
+<p>
+  Klicke auf einen Planeten, den du besitzt, um das <strong>Planetenmenü</strong> zu öffnen.
+  Dort kannst du produzieren und die Infanterie verwalten.
+</p>
+
+<h3>Voraussetzungen für Produktion</h3>
+<p>Jede Einheit benötigt eine bestimmte Anzahl besetzter Sektoren auf dem Planeten:</p>
+
+<table class="unit-table">
+  <tr><th>Befehl</th><th>Voraussetzung</th><th>Beschreibung</th></tr>
+  <tr><td>Taste 1</td><td>Weniger als 8 Sektoren</td><td>Erweitere Planeten um einen Sektor</td></tr>
+  <tr><td>Taste 2</td><td>Infanterie-Kapazität noch nicht erreicht</td><td>Soldaten produzieren (max. Sektoren × 200)</td></tr>
+  <tr><td>Taste 3</td><td>Mind. 2 Sektoren</td><td>Jäger bauen</td></tr>
+  <tr><td>Taste 4</td><td>Mind. 3 Sektoren + 100 Soldaten</td><td>Transporter bauen (Soldaten werden abgezogen)</td></tr>
+  <tr><td>Taste 5</td><td>Mind. 4 Sektoren</td><td>Fortgeschrittener Jäger</td></tr>
+  <tr><td>Taste 6</td><td>Mind. 5 Sektoren</td><td>Forts bauen (erhöhen Infanterie-KampfStärke im Verteidigungsmodus)</td></tr>
+  <tr><td>Taste 7</td><td>Mind. 6 Sektoren</td><td>Bomber bauen</td></tr>
+</table>
+
+<h3>Infanterie-Modus (Taste W)</h3>
+<p>
+  Auf jedem Planeten, den mehrere Fraktionen gleichzeitig besetzen, kämpfen die
+  <strong>Bodentruppen</strong> gegeneinander. Der Infanterie-Modus bestimmt, wie deine Soldaten dabei agieren:
+</p>
+<ul>
+  <li><span class="f1"><strong>Angriff</strong></span> — Soldaten kämpfen aggressiv (KampfStärke = Soldaten × Lebensbedingungen-Faktor)</li>
+  <li><span class="f2"><strong>Verteidigung</strong></span> — Soldaten kämpfen defensiv (+25% Bonus + 25 Punkte pro Fort)</li>
+</ul>
+<p>
+  <strong>Achtung:</strong> Dieser Modus betrifft nur die Infanterie auf dem Planeten,
+  <em>nicht</em> die Schiffe im Weltall. Schiffe greifen feindliche Schiffe immer automatisch an.
+</p>
+
+<h3>Planetenverteidigung</h3>
+<p>Wenn du alle 8 Sektoren eines Planeten besitzt:</p>
+<ul>
+  <li><strong>Ab 7 Sektoren:</strong> Der Planet verfügt über Abfangraketen gegen feindliche Schiffe.</li>
+  <li><strong>Bei 8 Sektoren:</strong> Zusätzlicher Schutzschild (mit begrenzten HP) und mehr Raketen.</li>
+</ul>
+
+<h3>Eroberung durch Transporter</h3>
+<ol>
+  <li>Baue <strong>Soldaten</strong> auf deinem Planeten.</li>
+  <li>Baue einen <strong>Transporter</strong> (benötigt 100 Soldaten + mind. 3 Sektoren).</li>
+  <li>Markiere den Transporter und klicke mit der <strong>rechten Maustaste</strong> auf den Zielplaneten.</li>
+  <li>Der Transporter fliegt dorthin und landet 100 Soldaten.</li>
+  <li>Wenn mehrere Fraktionen denselben Planeten besetzen, kämpfen die Soldaten gegeneinander.</li>
+  <li>Die Fraktion mit der höheren KampfStärke gewinnt und die unterlegene verliert Soldaten.</li>
+</ol>
+
+<!-- ==================== TIPPS ==================== -->
+<h2 id="tipps">Tipps für den Anfang</h2>
+<ul>
+  <li>Produziere zuerst Soldaten und baue deinen Planeten auf (mehr Sektoren = mehr Produktionsmöglichkeiten).</li>
+  <li>Baue früh Jäger, um deine Gebiete vor feindlichen Schiffen zu schützen.</li>
+  <li>Transporter sind der einzige Weg, um neue Planeten zu erobern — baue sie sobald du genug Sektoren und Soldaten hast.</li>
+  <li>Ein Planet mit <strong>keinem aktiven Produktionsauftrag</strong> hat 25% mehr Infanterie-KampfStärke.</li>
+  <li>Im Verteidigungsmodus mit Forts sind deine Bodentruppen Stärker — nutze das auf wichtigen Planeten.</li>
+  <li>Vergiss nicht, die W-Taste zu nutzen, um zwischen Angriff und Verteidigung zu wechseln.</li>
+  <li>Gruppieren Sie Schiffe mit den Tasten 1-8 für schnelle Auswahl.</li>
+  <li>Speichere häufig über den Save-Button rechts!</li>
+</ul>
+
+<div class="tip">
+  <strong>Viel Spaß beim Spielen!</strong>
+</div>
+
+<hr style="border-color: rgba(255,255,255,0.06); margin: 40px 0 20px 0;">
+<p style="text-align:center; color:#444; font-size:0.8em;">
+  USI - Star Fleet | Ein klassisches Weltraumstrategiespiel
+</p>
+
+</body>
+</html>

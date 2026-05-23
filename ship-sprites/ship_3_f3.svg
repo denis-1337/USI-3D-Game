@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" fill="rgba(0,0,0,0)" />
+  <g transform="rotate(0)">
+    <polygon points="90.8,60.0 67.1,74.2 67.1,45.8" fill="#0000AA" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="105.0,83.7 67.1,74.2 57.6,97.9" fill="#00AAAA" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="105.0,36.3 67.1,45.8 57.6,22.1" fill="#00AAAA" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="67.1,74.2 57.6,97.9 29.2,88.4" fill="#00AAAA" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="67.1,45.8 29.2,31.6 57.6,22.1" fill="#00AAAA" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="67.1,74.2 29.2,88.4 15.0,60.0" fill="#AA0000" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="67.1,45.8 15.0,60.0 29.2,31.6" fill="#AA0000" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <polygon points="67.1,74.2 67.1,45.8 15.0,60.0" fill="#0000AA" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+  </g>
+</svg>
