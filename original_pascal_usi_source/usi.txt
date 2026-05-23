@@ -1,0 +1,67 @@
+Tja ein kleines hirnloses Spiel, ohne Vor oder Abspann,
+dafür war ich einfach zu faul.
+
+Für jeden der es tatsächlich mal spielt , am leichtesten
+gewinnt man mit blau !
+
+
+Die Steuerung ist so wie bei allen Echtzeitstrategie-
+spielen.
+
+Schiffe steuern:
+-einrahmen ,ans Ziel klicken
+-falls Feinde da sind übernimt die KI die Steuerung
+
+Planeten erobern:
+-Transporter bauen und auf Planeten landen
+- im PMenu auf Verteidigung klicken und der
+  Kampf geht los
+
+Bauen:
+-Bauwunsch anklicken Menge einstellen fertig
+
+Truppen markierren
+-Shift + 1-8 alle aktiven Schiffe werden unter dieser
+Nummer gemerkt,um sie später zu aktivieren einfach
+diese Zahl drücken 
+
+Forts erhöhen den Verteidigungswert
+
+Transporter brauchen 100 Soldaten bei ihrer Fertigstellung
+
+Immer die best möglichen Schiffe bauen
+
+Striche neben Planeten geben an wie effizent die 
+jeweiligen Truppen auf ihm kämpfen
+
+Strich über Planeten -> Produktionsstand
+
+es gibt nur einen Speicherplatz !
+
+der Ausgang der Kämpf ist sehr stark vom Zufall abhängig
+also speichern und laden lohnt sich
+
+Alles was im PMenu eingerahmt ist kann angeklickt werden 
+
+Spiel beenden: ESC
+
+ich hoffe das reicht , falls was unklar ist oder jemand
+wissen will wie man bestimmte Einstellungen im Programm
+ändern kann -> ben.becker@stud.uni-rostock.de
+
+Das Spiel wurde unter BP 7.0 im Real Modus compiliert
+(läuft also nicht unter Win 2000 ), ist bereits gepacht.
+
+Systemanforderungen:
+-ein Computer ab 286'er
+-Dos ab 3.?
+-ein paar Gramm RAM 
+-EGA kompatible Grafik 
+-Maus
+-Tastatur  
+-Bildschirm
+
+Auf'm P 75 liefs ganz gemütlich , auf schnelleren könnte
+vielleicht etwas Hektik aufkommen.
+
+Viel Spaß !    
