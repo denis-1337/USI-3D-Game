@@ -2,11 +2,13 @@
 
 A browser-based space strategy game with 3D graphics (Three.js) that runs completely offline with no server required.
 
+![Screenshot](screenshot.png)
+
 ## Credits
 
 This project is based on the original **USI - Star Fleet** DOS game by **Ben Becker**. It is a modernized browser port with extended 3D graphics, refined gameplay, and additional features.
 
-The original DOS source code is included in the [`usi_source/`](usi_source/) directory for reference.
+The original DOS source code is included in the [`original_pascal_usi_source/`](original_pascal_usi_source/) directory for reference.
 
 ## About the Game
 
@@ -64,7 +66,7 @@ Then open `http://localhost:8080` in your browser.
 | `vec.js` | Vector helper functions |
 | `ships/` | Ship data (JSON) |
 | `ship-sprites/` | 2D ship graphics (SVG) |
-| `usi_source/` | Original DOS source code (Turbo Pascal) by Ben Becker |
+| `original_pascal_usi_source/` | Original DOS source code (Turbo Pascal) by Ben Becker |
 
 ## License
 
