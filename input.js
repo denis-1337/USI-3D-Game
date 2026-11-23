@@ -436,8 +436,14 @@ function initInput(canvasEl) {
       return;
     }
 
-    /* --- Planet menu keys (1-7, C, W) --- */
+    /* --- Planet menu keys (1-7, C, W, ESC) --- */
     if (pview) {
+      if (e.code === 'Escape') {
+        pview = false;
+        befehl = false;
+        e.preventDefault();
+        return;
+      }
       if (e.key >= '1' && e.key <= '7') {
         handlePlanetMenuKey(parseInt(e.key));
         e.preventDefault();
@@ -470,16 +476,11 @@ function initInput(canvasEl) {
         return;
       }
 
-      /* --- Group assignment (!,"#$%&/()) when ships are selected --- */
-      if (befehl) {
-        if (e.key === '!') { assignGroup(1); e.preventDefault(); return; }
-        if (e.key === '"') { assignGroup(2); e.preventDefault(); return; }
-        if (e.key === '#') { assignGroup(3); e.preventDefault(); return; }
-        if (e.key === '$') { assignGroup(4); e.preventDefault(); return; }
-        if (e.key === '%') { assignGroup(5); e.preventDefault(); return; }
-        if (e.key === '&') { assignGroup(6); e.preventDefault(); return; }
-        if (e.key === '/') { assignGroup(7); e.preventDefault(); return; }
-        if (e.key === '(') { assignGroup(8); e.preventDefault(); return; }
+      /* --- Group assignment (Shift+Digit1..Digit8) when ships are selected --- */
+      if (befehl && e.shiftKey && /^Digit[1-8]$/.test(e.code)) {
+        assignGroup(parseInt(e.code.charAt(5), 10));
+        e.preventDefault();
+        return;
       }
     }
 

@@ -58,6 +58,8 @@
     }
     li { margin-bottom: 4px; }
 
+    strong { color: #d8d8d8; }
+
     a.back-link {
       display: inline-block;
       color: #FFAA00;
@@ -149,15 +151,26 @@
     .ship-card:hover {
       border-color: rgba(255,170,0,0.3);
     }
-    .ship-card svg {
-      width: 100px;
-      height: 100px;
+    .variant-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 6px;
       margin-bottom: 8px;
+    }
+    .variant-row img {
+      width: 62px;
+      height: 62px;
     }
     .ship-card .ship-name {
       font-size: 0.95em;
       color: #fff;
       margin-bottom: 4px;
+    }
+    .ship-card .ship-types {
+      font-size: 0.7em;
+      color: #666;
+      margin-bottom: 5px;
     }
     .ship-card .ship-desc {
       font-size: 0.8em;
@@ -165,7 +178,7 @@
       line-height: 1.4;
     }
 
-    /* Unit comparison table */
+    /* Tables */
     .unit-table {
       width: 100%;
       border-collapse: collapse;
@@ -187,6 +200,10 @@
     .unit-table tr:hover td {
       background: rgba(255,255,255,0.02);
     }
+    .unit-table td:first-child {
+      color: #fff;
+      white-space: nowrap;
+    }
 
     /* Tip box */
     .tip {
@@ -198,6 +215,15 @@
       font-size: 0.9em;
     }
     .tip strong { color: #FFAA00; }
+
+    .note {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 0.85em;
+    }
 
     /* Controls table */
     .controls-table {
@@ -214,7 +240,7 @@
       color: #FFAA00;
       font-family: monospace;
       white-space: nowrap;
-      width: 160px;
+      width: 190px;
     }
     .controls-table td:last-child {
       color: #b0b0b0;
@@ -242,7 +268,26 @@
     @media (max-width: 600px) {
       body { padding: 16px 12px; }
       h1 { font-size: 1.5em; }
-      .ship-grid { grid-template-columns: 1fr 1fr; }
+      .ship-grid { grid-template-columns: 1fr; }
+      .unit-table { font-size: 0.75em; }
+      .unit-table td, .unit-table th { padding: 5px 4px; }
+      .controls-table tr {
+        display: flex;
+        flex-direction: column;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+      }
+      .controls-table td {
+        display: block;
+        width: auto;
+        border: 0;
+        padding: 2px 6px;
+      }
+      .controls-table td:first-child {
+        width: auto;
+        white-space: normal;
+        font-size: 0.8em;
+      }
     }
   </style>
 </head>
@@ -273,249 +318,298 @@
 <!-- ==================== SPIELZIEL ==================== -->
 <h2 id="ziel">Spielziel</h2>
 <p>
-  Du bist der Führer einer Fraktion im Weltraum. Dein Ziel:
-  <strong>alle Planeten erobern und alle feindlichen Schiffe vernichten.</strong>
-</p>
-<p>
-  Es gibt 10 Planeten und 3 Fraktionen. Du wählst eine Fraktion am Anfang.
-  Die anderen beiden werden vom Computer gesteuert.
+  Du führst eine von drei Fraktionen im Weltraum: <span class="f1">Rot</span>,
+  <span class="f2">Grün</span> oder <span class="f3">Gelb</span>. Die anderen beiden
+  Fraktionen werden vom Computer gesteuert.
 </p>
 <ul>
-  <li><strong>Sieg:</strong> Keine feindlichen Sektoren und keine feindlichen Schiffe mehr vorhanden.</li>
-  <li><strong>Niederlage:</strong> Du besitzt keine Sektoren und hast keine Schiffe mehr.</li>
+  <li><strong>Sieg:</strong> Alle besetzten Sektoren aller Planeten gehören deiner Fraktion,
+      und es sind keine feindlichen Schiffe mehr im Spiel. Neutrale, nicht besetzte
+      Sektoren dürfen übrig bleiben &ndash; du musst nicht jeden Planeten besetzen.</li>
+  <li><strong>Niederlage:</strong> Deine Fraktion besitzt keinen Sektor und kein Schiff mehr.</li>
 </ul>
 <p>
-  Jede Fraktion kann maximal 85 Schiffe gleichzeitig besitzen.
+  Es gibt 10 Planeten, jeder mit 8 Sektoren und Platz für drei Kolonien.
+  Jede Fraktion kann höchstens 85 Schiffe gleichzeitig besitzen.
+</p>
+<p>
+  Alle Planeten beginnen neutral. Zu Beginn hat jede Fraktion drei Kampfschiffe und
+  zwei Transporter, aber <strong>keinen Sektor</strong>. Ohne Sektor läuft keine
+  Produktion. Die Transporter müssen deshalb zuerst einen Planeten anfliegen und dort
+  Truppen landen.
 </p>
 
 <!-- ==================== STEUERUNG ==================== -->
 <h2 id="steuerung">Steuerung</h2>
 
+<h3>Spielstart</h3>
+<table class="controls-table">
+  <tr><td>Fraktionszeile anklicken</td><td>Fraktion wählen und Spiel starten</td></tr>
+  <tr><td>1 / 2 / 3</td><td>Fraktion vorwählen</td></tr>
+  <tr><td>Pfeil hoch / runter, Enter / Leertaste</td><td>Auswahl bestätigen</td></tr>
+  <tr><td>DE / EN</td><td>Sprache der Anleitung wechseln (gilt auch im Spiel)</td></tr>
+</table>
+
 <h3>Maus</h3>
 <table class="controls-table">
   <tr><td>Linksklick + Ziehen</td><td>Schiffe markieren (Box-Auswahl)</td></tr>
-  <tr><td>Linksklick (ohne Ziehen)</td><td>Einzelnes Schiff markieren oder Deselektieren</td></tr>
-  <tr><td>Rechtsklick mit markierten Schiffen</td><td>Bewegungsbefehl: auf Planet = dorthin landen, ins Freie = dorthin fliegen</td></tr>
+  <tr><td>Linksklick (ohne Ziehen)</td><td>Einzelnes Schiff markieren oder Auswahl aufheben</td></tr>
+  <tr><td>Linksklick auf eigenen Planeten</td><td>Baumenü öffnen</td></tr>
+  <tr><td>Rechtsklick mit markierten Schiffen</td><td>Bewegungsbefehl: auf einen Planeten = dorthin fliegen, ins Freie = dorthin fliegen. Kampfschiffe landen nicht.</td></tr>
+  <tr><td>Rechtsklick auf Planeten mit Transporter</td><td>Transporter fliegt dorthin und landet (Truppen an Bord bleiben erhalten)</td></tr>
   <tr><td>Rechtsklick ohne markierte Schiffe</td><td>Auswahl aufheben</td></tr>
   <tr><td>Klick auf Mini-Map</td><td>Kamera zum gewählten Bereich bewegen</td></tr>
-  <tr><td>Kamera-Slider (rechts)</td><td>Kamerawinkel ändern (0° = von oben, 90° = perspektivisch)</td></tr>
 </table>
 
-<h3>Tastatur im Spiel</h3>
+<h3>Tastatur</h3>
 <table class="controls-table">
-  <tr><td>1 - 8</td><td>Schiffegruppe auswählen (alle Schiffen in dieser Gruppe werden markiert)</td></tr>
-  <tr><td>!, ", #, $, %, &amp;, /, (</td><td>Markierte Schiffe einer Gruppe zuweisen (nur mit markierten Schiffen)</td></tr>
+  <tr><td>1 &ndash; 8</td><td>Gruppe auswählen</td></tr>
+  <tr><td>Shift + 1 &ndash; 8</td><td>Markierte Schiffe der Gruppe zuweisen</td></tr>
   <tr><td>P</td><td>Pause an/aus</td></tr>
+  <tr><td>ESC</td><td>Baumenü schließen</td></tr>
 </table>
-
-<h3>Planetenmenü-Tasten</h3>
 <p>
-  Öffne das Planetenmenü, indem du auf einen Planeten klickst, den du besitzt.
+  Die Seitengruppen 1&ndash;8 sind reine Bedienelemente, keine Fraktionsnummern.
+  Shift+1 bis Shift+8 funktionieren auch auf deutschen Tastaturen.
 </p>
-<table class="controls-table">
-  <tr><td>1</td><td>Nächstes Level bauen (erweitert Planet um einen Sektor)</td></tr>
-  <tr><td>2</td><td>Soldaten produzieren</td></tr>
-  <tr><td>3</td><td>Jäger bauen (benötigt mind. 2 Sektoren)</td></tr>
-  <tr><td>4</td><td>Transporter bauen (benötigt mind. 3 Sektoren + 100 Soldaten)</td></tr>
-  <tr><td>5</td><td>Fortgeschrittener Jäger (benötigt mind. 4 Sektoren)</td></tr>
-  <tr><td>6</td><td>Forts bauen (benötigt mind. 5 Sektoren)</td></tr>
-  <tr><td>7</td><td>Bomber bauen (benötigt mind. 6 Sektoren)</td></tr>
-  <tr><td>8 oder C</td><td>Aktuellen Produktionsauftrag abbrechen</td></tr>
-  <tr><td>W oder 9</td><td>Infanterie-Modus umschalten: Angriff → Verteidigung (nur für Bodentruppen auf diesem Planeten)</td></tr>
-  <tr><td>Mausklick auf „zurück“</td><td>Planetenmenü schließen</td></tr>
-</table>
+<p>
+  Im Baumenü: 1&ndash;7 wählen eine Bauoption, 8 oder C setzt den Auftrag auf
+  &bdquo;Nichts&ldquo; (stoppt die Fertigung), W oder 9 wechselt zwischen Angriff und
+  Verteidigung. ESC schließt das Menü. Speichern/Laden erfolgt über die Knöpfe im
+  rechten Seitenpanel.
+</p>
 
 <!-- ==================== EINHEITEN ==================== -->
-<h2 id="einheiten">Einheiten &amp; Schiffe</h2>
+<h2 id="einheiten">Einheiten</h2>
 <p>
-  Schiffe werden auf deinen Planeten produziert und agieren automatisch im Weltall:
-  Kampfschiffe jagen und beschießen feindliche Schiffe in der Nähe,
-  und Transporter landen auf Planeten, um Soldaten zu landen und Sektoren zu erobern.
+  Jede Fraktion hat eigene Schiffsmodelle, aber nur drei Rollen: Jäger, Fortgeschrittenes
+  Jäger und Bomber. Die Werte hängen von der Rolle ab, nicht vom Fraktionsdesign.
+  Transporter sind unbewaffnete Landungsschiffe.
 </p>
-
-<h3>Kampfschiffe</h3>
-<p>Kampfschiffe (Typ 1–9) greifen feindliche Schiffe automatisch an, wenn sie in Reichweite sind.</p>
 
 <div class="ship-grid">
   <div class="ship-card">
-    <img src="ship-sprites/ship_1_f1.svg" alt="Jäger">
+    <div class="variant-row">
+      <img src="ship-sprites/ship_1_f1.svg" alt="Jäger, Fraktion 1">
+      <img src="ship-sprites/ship_4_f1.svg" alt="Jäger, Fraktion 2">
+      <img src="ship-sprites/ship_7_f1.svg" alt="Jäger, Fraktion 3">
+    </div>
     <div class="ship-name">Jäger</div>
-    <div class="ship-desc">Schnelles Kampfflugzeug. Hohe Feuerrate (10 Schüss/sec), aber niedriger Einzelschaden und 75% Trefferquote. Geringe Panzerung.</div>
+    <div class="ship-types">Typen 1 / 4 / 7 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Schnell und leicht gepanzert. Hohe Feuerrate, ein Geschoß pro Salve.</div>
   </div>
   <div class="ship-card">
-    <img src="ship-sprites/ship_2_f1.svg" alt="Fortgeschrittener Jäger">
-    <div class="ship-name">Fortg. Jäger</div>
-    <div class="ship-desc">Ausgeglichener Kampfflugzeug. Mittlere Feuerrate (7,5 Schüss/sec), 80% Trefferquote, mittlere Panzerung.</div>
+    <div class="variant-row">
+      <img src="ship-sprites/ship_2_f1.svg" alt="Fortgeschrittenes Jäger, Fraktion 1">
+      <img src="ship-sprites/ship_5_f1.svg" alt="Fortgeschrittenes Jäger, Fraktion 2">
+      <img src="ship-sprites/ship_8_f1.svg" alt="Fortgeschrittenes Jäger, Fraktion 3">
+    </div>
+    <div class="ship-name">Fortgeschrittenes Jäger</div>
+    <div class="ship-types">Typen 2 / 5 / 8 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Mehr Panzerung und Schild als ein Jäger. Zwei Geschosse pro Salve, aber langsamer.</div>
   </div>
   <div class="ship-card">
-    <img src="ship-sprites/ship_4_f1.svg" alt="Fortgeschrittener Jäger">
-    <div class="ship-name">Fortg. Jäger</div>
-    <div class="ship-desc">Ausgeglichener Kampfflugzeug. Mittlere Feuerrate (7,5 Schüss/sec), 80% Trefferquote, mittlere Panzerung.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_5_f1.svg" alt="Fortgeschrittener Jäger">
-    <div class="ship-name">Fortg. Jäger</div>
-    <div class="ship-desc">Ausgeglichener Kampfflugzeug. Mittlere Feuerrate (7,5 Schüss/sec), 80% Trefferquote, mittlere Panzerung.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_7_f1.svg" alt="Elite Jäger">
-    <div class="ship-name">Elite Jäger</div>
-    <div class="ship-desc">Schnelles Kampfflugzeug. Hohe Feuerrate (10 Schüss/sec), 75% Trefferquote, geringe Panzerung.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_8_f1.svg" alt="Elite Jäger">
-    <div class="ship-name">Elite Jäger</div>
-    <div class="ship-desc">Schnelles Kampfflugzeug. Hohe Feuerrate (10 Schüss/sec), 75% Trefferquote, geringe Panzerung.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_3_f1.svg" alt="Bomber">
+    <div class="variant-row">
+      <img src="ship-sprites/ship_3_f1.svg" alt="Bomber, Fraktion 1">
+      <img src="ship-sprites/ship_6_f1.svg" alt="Bomber, Fraktion 2">
+      <img src="ship-sprites/ship_9_f1.svg" alt="Bomber, Fraktion 3">
+    </div>
     <div class="ship-name">Bomber</div>
-    <div class="ship-desc">Schweres Schiff. Geringe Feuerrate (4,3 Schüss/sec), aber hohe Trefferquote (90%) und hoher Einzelschaden. Starke Panzerung, aber langsam.</div>
+    <div class="ship-types">Typen 3 / 6 / 9 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Langsam und schwer gepanzert. Höchste Trefferchance, mehrere Geschosse pro Salve und Raketen.</div>
   </div>
   <div class="ship-card">
-    <img src="ship-sprites/ship_6_f1.svg" alt="Bomber">
-    <div class="ship-name">Fortg. Bomber</div>
-    <div class="ship-desc">Schweres Schiff. Geringe Feuerrate (4,3 Schüss/sec), hohe Trefferquote (90%) und hoher Einzelschaden. Starke Panzerung, langsam.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_9_f1.svg" alt="Bomber">
-    <div class="ship-name">Elite Bomber</div>
-    <div class="ship-desc">Schwerstes Kampfflugzeug. Geringe Feuerrate (4,3 Schüss/sec), hohe Trefferquote (90%) und sehr hoher Einzelschaden. Sehr starke Panzerung, langsam.</div>
-  </div>
-</div>
-
-<h3>Transporter</h3>
-<p>
-  Transporter (Typ 10–12) transportieren 100 Soldaten zum Zielplaneten.
-  Wenn sie landen, werden die Soldaten auf dem Planeten zugewiesen und Sektoren erobern.
-  Transporter benötigen 100 Soldaten zum Bauen (werden vom Planeten abgezogen).
-</p>
-
-<div class="ship-grid">
-  <div class="ship-card">
-    <img src="ship-sprites/ship_10_f1.svg" alt="Transporter">
+    <div class="variant-row">
+      <img src="ship-sprites/ship_10_f1.svg" alt="Transporter, Fraktion 1">
+      <img src="ship-sprites/ship_11_f1.svg" alt="Transporter, Fraktion 2">
+      <img src="ship-sprites/ship_12_f1.svg" alt="Transporter, Fraktion 3">
+    </div>
     <div class="ship-name">Transporter</div>
-    <div class="ship-desc">Transportiert 100 Soldaten zum Zielplaneten und landet sie dort.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_11_f1.svg" alt="Fortgeschrittener Transporter">
-    <div class="ship-name">Fortg. Transporter</div>
-    <div class="ship-desc">Transportiert 100 Soldaten zum Zielplaneten und landet sie dort.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_12_f1.svg" alt="Elite Transporter">
-    <div class="ship-name">Elite Transporter</div>
-    <div class="ship-desc">Transportiert 100 Soldaten zum Zielplaneten und landet sie dort.</div>
+    <div class="ship-types">Typen 10 / 11 / 12 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Unbewaffnet, schnell und stark gepanzert. Bringt 100 Soldaten als Verstärkung und gründet Kolonien.</div>
   </div>
 </div>
 
-<!-- ==================== VORTEILE ==================== -->
-<h2 id="vorteile">Gegeneinander (Stein-Schere-Papier)</h2>
+<h3>Werte und Bewaffnung</h3>
+<table class="unit-table">
+  <tr><th>Schiff</th><th>Panzerung</th><th>Geschwindigkeit</th><th>Salven pro Sekunde</th><th>Trefferchance</th><th>Geschosse pro Salve</th></tr>
+  <tr><td>Jäger</td><td>80</td><td>180</td><td>10</td><td>75 %</td><td>1</td></tr>
+  <tr><td>Fortgeschrittenes Jäger</td><td>110</td><td>150</td><td>7,5</td><td>80 %</td><td>2</td></tr>
+  <tr><td>Bomber</td><td>180</td><td>90</td><td>4,3</td><td>90 %</td><td>2&ndash;3 plus Raketen</td></tr>
+  <tr><td>Transporter</td><td>300</td><td>300</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr>
+</table>
 <p>
-  Verschiedene Schiffstypen haben Vorteile und Nachteile gegeneinander:
+  Werte gelten für alle drei Fraktionsdesigns einer Rolle. Schilde laden sich alle
+  10 Ticks (etwa alle 0,3 Sekunden) um einen Punkt nach, bis ihre Kapazität erreicht
+  ist. Die Kampfschiffe feuern automatisch auf feindliche Schiffe in Reichweite und
+  schießen nicht auf Planeten.
 </p>
 
-<div class="rps-box">
-  <div class="rps-row">
-    <span class="f1">Jäger</span>
-    <span class="rps-arrow">&#8594; +40% Schaden gegen </span>
-    <span class="f3">Bomber</span>
-  </div>
-  <div class="rps-row">
-    <span class="f3">Bomber</span>
-    <span class="rps-arrow">&#8594; +50% Schaden gegen </span>
-    <span style="color:#AA5500">Transporter</span>
-  </div>
-  <div class="rps-row">
-    <span style="color:#AA5500">Transporter</span>
-    <span class="rps-arrow">&#8594; +35% Schaden gegen </span>
-    <span class="f1">Jäger</span>
-  </div>
-  <div class="rps-row" style="margin-top:12px; color:#777; font-size:0.85em;">
-    Fortgeschrittene Jäger: +25% gegen Bomber, –10% gegen Transporter
-  </div>
-</div>
+<h3>Waffen und Schaden</h3>
+<table class="unit-table">
+  <tr><th>Waffe</th><th>Schaden</th><th>Einsatz</th></tr>
+  <tr><td>Geschosse</td><td>20 pro Geschoß</td><td>Alle Kampfschiffe; pro Salve ein bis drei Geschosse</td></tr>
+  <tr><td>Smart-Rakete</td><td>130</td><td>Bomber der Fraktionen 1 und 2 alle 30 Ticks (2 Sekunden); Planetenverteidigung</td></tr>
+  <tr><td>Rakete</td><td>140</td><td>Bomber der Fraktion 3 (Typ 9) alle 15 Ticks (1 Sekunde)</td></tr>
+</table>
+<p>
+  Eine Salve trifft komplett oder verfehlt komplett; die Trefferchance wird pro Salve
+  gewürfelt. Ein schnelleres Ziel ist schwerer zu treffen: Pro 10 Punkte
+  Geschwindigkeitsdifferenz sinkt die Trefferchance um 3 Prozentpunkte, mindestens
+  20 Prozent bleiben.
+</p>
 
-<p>Zusätzlich:</p>
-<ul>
-  <li>Schnellere Schiffe sind schwerer zu treffen (3% weniger Trefferquote pro 10 Geschwindigkeitseinheiten Unterschied).</li>
-  <li>Jäger feuern sehr schnell (10 Schüss/sec), aber mit 75% Trefferquote.</li>
-  <li>Bomber feuern langsam (4,3 Schüss/sec), haben aber 90% Trefferquote und hohen Schaden.</li>
-  <li>Schilde regenerieren sich langsam im Laufe der Zeit.</li>
-</ul>
+<!-- ==================== GEGENEINANDER ==================== -->
+<h2 id="vorteile">Gegeneinander</h2>
+<p>
+  Die Waffenstärke hängt von der Kombination aus Angreifer- und Zielrolle ab:
+</p>
+<table class="unit-table">
+  <tr><th>Angreifer</th><th>Ziel</th><th>Schaden</th></tr>
+  <tr><td>Jäger</td><td>Bomber</td><td>+40 %</td></tr>
+  <tr><td>Jäger</td><td>Fortgeschrittenes Jäger</td><td>+40 %</td></tr>
+  <tr><td>Fortgeschrittenes Jäger</td><td>Bomber</td><td>+25 %</td></tr>
+  <tr><td>Fortgeschrittenes Jäger</td><td>Transporter</td><td>&minus;10 %</td></tr>
+  <tr><td>Bomber</td><td>Transporter</td><td>+50 %</td></tr>
+  <tr><td>Transporter</td><td>&ndash;</td><td>Keine Waffen</td></tr>
+</table>
+<p>
+  Alle anderen Kombinationen zählen normal (100 %). Jäger sind gegen Bomber und
+  Fortgeschrittene Jäger stark, Bomber gegen Transporter. Fortgeschrittene Jäger sind
+  gegen Transporter schwächer als gegen andere Ziele.
+</p>
+<div class="note">
+  Im Code gibt es einen +35 %-Bonus für Transporter gegen Jäger. Transporter haben
+  aber keine Waffen und feuern nie, daher wird dieser Bonus im Spiel nicht wirksam.
+</div>
 
 <!-- ==================== PLANETENBAU ==================== -->
 <h2 id="planeten">Planetenbau</h2>
-<p>
-  Klicke auf einen Planeten, den du besitzt, um das <strong>Planetenmenü</strong> zu öffnen.
-  Dort kannst du produzieren und die Infanterie verwalten.
-</p>
 
-<h3>Voraussetzungen für Produktion</h3>
-<p>Jede Einheit benötigt eine bestimmte Anzahl besetzter Sektoren auf dem Planeten:</p>
-
+<h3>Bauoptionen</h3>
 <table class="unit-table">
-  <tr><th>Befehl</th><th>Voraussetzung</th><th>Beschreibung</th></tr>
-  <tr><td>Taste 1</td><td>Weniger als 8 Sektoren</td><td>Erweitere Planeten um einen Sektor</td></tr>
-  <tr><td>Taste 2</td><td>Infanterie-Kapazität noch nicht erreicht</td><td>Soldaten produzieren (max. Sektoren × 200)</td></tr>
-  <tr><td>Taste 3</td><td>Mind. 2 Sektoren</td><td>Jäger bauen</td></tr>
-  <tr><td>Taste 4</td><td>Mind. 3 Sektoren + 100 Soldaten</td><td>Transporter bauen (Soldaten werden abgezogen)</td></tr>
-  <tr><td>Taste 5</td><td>Mind. 4 Sektoren</td><td>Fortgeschrittener Jäger</td></tr>
-  <tr><td>Taste 6</td><td>Mind. 5 Sektoren</td><td>Forts bauen (erhöhen Infanterie-KampfStärke im Verteidigungsmodus)</td></tr>
-  <tr><td>Taste 7</td><td>Mind. 6 Sektoren</td><td>Bomber bauen</td></tr>
+  <tr><th>Taste</th><th>Bauoption</th><th>Voraussetzung</th><th>Dauer</th><th>Effekt</th></tr>
+  <tr><td>1</td><td>Sektor ausbauen</td><td>weniger als 8 Sektoren</td><td>400 Ticks</td><td>einen weiteren Sektor gewinnen (max. 8)</td></tr>
+  <tr><td>2</td><td>Soldaten ausbilden</td><td>Soldaten unter Sektoren &times; 200</td><td>400 Ticks</td><td>50 Soldaten pro Durchgang</td></tr>
+  <tr><td>3</td><td>Jäger bauen</td><td>mindestens 2 Sektoren, freier Schiffplatz</td><td>180 Ticks</td><td>ein Jäger</td></tr>
+  <tr><td>4</td><td>Transporter bauen</td><td>mindestens 3 Sektoren, 100 Soldaten, freier Schiffplatz</td><td>260 Ticks</td><td>Transporter; kostet 100 Soldaten bei Fertigstellung</td></tr>
+  <tr><td>5</td><td>Fortgeschrittenes Jäger bauen</td><td>mindestens 4 Sektoren, freier Schiffplatz</td><td>240 Ticks</td><td>Fortgeschrittenes Jäger</td></tr>
+  <tr><td>6</td><td>Fort bauen</td><td>mindestens 5 Sektoren, Forts unter Sektoren</td><td>300 Ticks</td><td>ein Fort (Verteidigungsstärke im Bodenkampf)</td></tr>
+  <tr><td>7</td><td>Bomber bauen</td><td>mindestens 6 Sektoren, freier Schiffplatz</td><td>350 Ticks</td><td>ein Bomber</td></tr>
+  <tr><td>8 / C</td><td>Nichts</td><td>&ndash;</td><td>&ndash;</td><td>Auftrag stoppen/abbrechen</td></tr>
 </table>
-
-<h3>Infanterie-Modus (Taste W)</h3>
 <p>
-  Auf jedem Planeten, den mehrere Fraktionen gleichzeitig besetzen, kämpfen die
-  <strong>Bodentruppen</strong> gegeneinander. Der Infanterie-Modus bestimmt, wie deine Soldaten dabei agieren:
+  Schiffe können nur gebaut werden, solange die Fraktion weniger als 85 Schiffe hat.
+  Ein Transporter kostet bei Fertigstellung 100 Soldaten; beim Start des Auftrags
+  müssen mindestens 100 Soldaten vorhanden sein.
 </p>
-<ul>
-  <li><span class="f1"><strong>Angriff</strong></span> — Soldaten kämpfen aggressiv (KampfStärke = Soldaten × Lebensbedingungen-Faktor)</li>
-  <li><span class="f2"><strong>Verteidigung</strong></span> — Soldaten kämpfen defensiv (+25% Bonus + 25 Punkte pro Fort)</li>
-</ul>
+
+<h3>Auftrag, Anzahl und Produktion</h3>
 <p>
-  <strong>Achtung:</strong> Dieser Modus betrifft nur die Infanterie auf dem Planeten,
-  <em>nicht</em> die Schiffe im Weltall. Schiffe greifen feindliche Schiffe immer automatisch an.
+  &bdquo;Auftrag&ldquo; bestimmt die Bauoption, &bdquo;Anzahl&ldquo; die Zahl der
+  Wiederholungen. +1/+10 bzw. &minus;1/&minus;10 erhöhen oder senken die Anzahl
+  (Standard 1). Bei 0 wird die Fertigung gestoppt. Jeder abgeschlossene Durchgang
+  startet den nächsten; bei Soldaten sind es 50 pro Durchgang. Der Fortschrittsbalken
+  zeigt die Restzeit. Soldaten, Forts, Verhalten und Planet zeigen deine Kolonie;
+  &bdquo;alle Armeen&ldquo; zeigt die Truppen aller Fraktionen auf dem Planeten.
+</p>
+
+<h3>Bodentruppen und Kampf</h3>
+<ul>
+  <li>Kampfhandlungen finden statt, sobald mindestens eine Fraktion auf Angriff steht und
+      mehr als eine Fraktion auf dem Planeten vertreten ist. Stehen alle Fraktionen auf
+      Verteidigung, gibt es keinen Kampf.</li>
+  <li>Alle 5 Ticks würfelt jede Fraktion ihre Kampfstärke aus; die Fraktion mit der
+      niedrigsten ausgewürfelten Stärke verliert 1 Soldaten. Es gewinnt nicht sofort
+      die Fraktion mit der höheren Stärke.</li>
+  <li>Im Verteidigungsmodus besteht pro Kampf eine 3-%-Chance, dass die verteidigende
+      Fraktion zusätzlich einen Sektor und gegebenenfalls ein Fort verliert (nur bei
+      mehr als einem Sektor).</li>
+  <li>Sinken die Soldaten einer Fraktion auf 0, verliert sie alle Sektoren auf diesem
+      Planeten.</li>
+</ul>
+<table class="unit-table">
+  <tr><th>Auftrag</th><th>Kampfstärke</th></tr>
+  <tr><td>Angriff</td><td>Soldaten &times; (1 + Lebensbedingungen/100)</td></tr>
+  <tr><td>Verteidigung</td><td>Soldaten &times; (1 + Lebensbedingungen/100) &times; 1,25 + 25 &times; Forts</td></tr>
+  <tr><td>Ohne aktiven Auftrag</td><td>Kampfstärke &times; 1,25</td></tr>
+</table>
+<p>
+  Im Kampf zählen höchstens 200 Soldaten und höchstens 2 Forts; größere Mengen werden
+  bei der Kampfberechnung gekappt. Der 25-%-Bonus gilt nur, wenn kein Bauauftrag
+  läuft.
 </p>
 
 <h3>Planetenverteidigung</h3>
-<p>Wenn du alle 8 Sektoren eines Planeten besitzt:</p>
 <ul>
-  <li><strong>Ab 7 Sektoren:</strong> Der Planet verfügt über Abfangraketen gegen feindliche Schiffe.</li>
-  <li><strong>Bei 8 Sektoren:</strong> Zusätzlicher Schutzschild (mit begrenzten HP) und mehr Raketen.</li>
+  <li><strong>Ab 7 Sektoren:</strong> automatische Abfangraketen gegen feindliche
+      Schiffe im Umkreis von 250. Feuer alle 60 Ticks (2 Sekunden), Vorrat 2.
+      Ab 8 Sektoren wächst der Vorrat auf 3. Nachgeladen wird alle 150 Ticks (5 Sekunden).</li>
+  <li><strong>Ab 8 Sektoren:</strong> Schutzschild mit Trefferpunkten 50 &times; Anzahl
+      Sektoren (maximal 400). Feindliche Schiffe im Radius 200 verlieren alle 10 Ticks
+      6 Panzerung; jeder Treffer kostet 1 Schild-Trefferpunkt, das Schild lädt sich
+      alle 120 Ticks (4 Sekunden) um 1 Punkt nach.</li>
 </ul>
+<p>
+  Raketen und Schild gehören der Kolonie, die den Planeten besitzt. Sie kämpfen
+  automatisch, ohne zusätzliche Befehle.
+</p>
 
-<h3>Eroberung durch Transporter</h3>
+<h3>Transporter: Kolonie gründen</h3>
 <ol>
-  <li>Baue <strong>Soldaten</strong> auf deinem Planeten.</li>
-  <li>Baue einen <strong>Transporter</strong> (benötigt 100 Soldaten + mind. 3 Sektoren).</li>
-  <li>Markiere den Transporter und klicke mit der <strong>rechten Maustaste</strong> auf den Zielplaneten.</li>
-  <li>Der Transporter fliegt dorthin und landet 100 Soldaten.</li>
-  <li>Wenn mehrere Fraktionen denselben Planeten besetzen, kämpfen die Soldaten gegeneinander.</li>
-  <li>Die Fraktion mit der höheren KampfStärke gewinnt und die unterlegene verliert Soldaten.</li>
+  <li>Mit mindestens 100 Soldaten einen Transporter bauen. Bei Fertigstellung werden
+      100 Soldaten abgezogen.</li>
+  <li>Transporter markieren und den Zielplaneten mit der rechten Maustaste anklicken.</li>
+  <li>Der Transporter fliegt zum Planeten und landet, sobald er näher als 25 Einheiten
+      ist.</li>
+  <li>Die Truppen an Bord werden der eigenen Kolonie auf dem Planeten gutgeschrieben:
+      +100 Soldaten.</li>
+  <li>Hat die eigene Kolonie dort noch 0 Sektoren, entsteht ein Sektor: Bei weniger als
+      8 besetzten Sektoren wird ein neutraler Sektor beansprucht. Ist der Planet voll,
+      wird ein Sektor von der Fraktion mit den meisten Sektoren übernommen.</li>
+  <li>Der Transporter ist danach verbraucht. Die Truppen müssen den Planeten anschließend
+      im Bodenkampf halten.</li>
 </ol>
+<p>
+  Transporter sind der einzige Weg, eine neue Kolonie auf einem Planeten zu gründen.
+  Kampfschiffe können nicht landen und erobern keine Planeten. Hat die eigene Kolonie
+  bereits mindestens einen Sektor, bringt eine weitere Landung nur Soldaten und
+  keinen zusätzlichen Sektor.
+</p>
 
 <!-- ==================== TIPPS ==================== -->
-<h2 id="tipps">Tipps für den Anfang</h2>
+<h2 id="tipps">Tipps</h2>
+<div class="tip">
+  <strong>Erste Kolonie:</strong> Du startest ohne Sektor. Schicke deine beiden
+  Start-Transporter sofort zu einem neutralen Planeten, um die erste Kolonie zu gründen.
+</div>
 <ul>
-  <li>Produziere zuerst Soldaten und baue deinen Planeten auf (mehr Sektoren = mehr Produktionsmöglichkeiten).</li>
-  <li>Baue früh Jäger, um deine Gebiete vor feindlichen Schiffen zu schützen.</li>
-  <li>Transporter sind der einzige Weg, um neue Planeten zu erobern — baue sie sobald du genug Sektoren und Soldaten hast.</li>
-  <li>Ein Planet mit <strong>keinem aktiven Produktionsauftrag</strong> hat 25% mehr Infanterie-KampfStärke.</li>
-  <li>Im Verteidigungsmodus mit Forts sind deine Bodentruppen Stärker — nutze das auf wichtigen Planeten.</li>
-  <li>Vergiss nicht, die W-Taste zu nutzen, um zwischen Angriff und Verteidigung zu wechseln.</li>
-  <li>Gruppieren Sie Schiffe mit den Tasten 1-8 für schnelle Auswahl.</li>
-  <li>Speichere häufig über den Save-Button rechts!</li>
+  <li>Mehr als 200 Soldaten und 2 Forts werden im Kampf gekappt. Es ist sinnvoller,
+      Truppen auf mehrere Planeten zu verteilen, als alles auf einen zu stapeln.</li>
+  <li>Soldaten ohne aktiven Auftrag erhalten +25 % Kampfstärke; das kann eine
+      Verteidigung stärker machen als ein laufender Bauauftrag.</li>
+  <li>Ein Verteidigungsmodus lohnt sich für Planeten, die du nicht aufgeben willst:
+      Verteidigung erhält 25 % Bonus und Forts, hat aber die 3-%-Chance auf
+      Sektorverlust.</li>
+  <li>Kampfschiffe sind schneller und treffen besser, wenn das Ziel langsamer ist.
+      Jäger sind gegen Bomber und Fortgeschrittene Jäger stark; Bomber gegen
+      Transporter.</li>
+  <li>Mit 7 Sektoren bekommst du automatische Raketen, mit 8 Sektoren einen
+      Schutzschild. Der Ausbau auf 8 Sektoren lohnt sich für wichtige Planeten.</li>
+  <li>Gruppen lassen sich mit 1&ndash;8 auswählen und mit Shift+1&ndash;Shift+8
+      zuweisen; so kannst du Flotten getrennt steuern.</li>
+  <li>Speichern und Laden über die Knöpfe im rechten Seitenpanel. Pause mit P.</li>
+  <li>Der Kamera-Slider links zeigt 90&deg; (flache Seitenansicht), rechts 0&deg;
+      (direkt von oben); Zwischenwerte sind perspektivische Ansichten.</li>
 </ul>
 
 <div class="tip">
-  <strong>Viel Spaß beim Spielen!</strong>
+  <strong>Viel Spaß!</strong>
 </div>
 
 <hr style="border-color: rgba(255,255,255,0.06); margin: 40px 0 20px 0;">
 <p style="text-align:center; color:#444; font-size:0.8em;">
-  USI - Star Fleet | Ein klassisches Weltraumstrategiespiel
+  USI - Star Fleet | A classic space strategy game
 </p>
 
 </section>
@@ -529,7 +623,7 @@
 <p class="subtitle">Player guide for new players</p>
 
 <ul class="nav-list">
-  <li><a href="#goal">Game goal</a></li>
+  <li><a href="#goal">Goal</a></li>
   <li><a href="#controls">Controls</a></li>
   <li><a href="#units">Units</a></li>
   <li><a href="#matchups">Matchups</a></li>
@@ -537,247 +631,285 @@
   <li><a href="#tips">Tips</a></li>
 </ul>
 
-<!-- ==================== GAME GOAL ==================== -->
-<h2 id="goal">Game goal</h2>
+<!-- ==================== GOAL ==================== -->
+<h2 id="goal">Goal</h2>
 <p>
-  You are the leader of a faction in space. Your goal:
-  <strong>conquer all planets and destroy all enemy ships.</strong>
-</p>
-<p>
-  There are 10 planets and 3 factions. You choose a faction at the start.
-  The other two are controlled by the computer.
+  You lead one of three factions in space: <span class="f1">Red</span>,
+  <span class="f2">Green</span> or <span class="f3">Yellow</span>. The other two
+  factions are controlled by the computer.
 </p>
 <ul>
-  <li><strong>Victory:</strong> No enemy sectors and no enemy ships left.</li>
-  <li><strong>Defeat:</strong> You own no sectors and have no ships left.</li>
+  <li><strong>Victory:</strong> All occupied sectors on every planet belong to your
+      faction and no enemy ships remain in the game. Neutral, unoccupied sectors may
+      remain &ndash; you do not have to occupy every planet.</li>
+  <li><strong>Defeat:</strong> Your faction has no sectors and no ships left.</li>
 </ul>
 <p>
-  Each faction can own at most 85 ships at a time.
+  There are 10 planets, each with 8 sectors and room for three colonies.
+  Each faction can have at most 85 ships at the same time.
+</p>
+<p>
+  All planets start neutral. Each faction begins with three combat ships and two
+  transporters, but <strong>no sector</strong>. Without a sector there is no production,
+  so your transporters must first fly to a planet and land their troops there.
 </p>
 
 <!-- ==================== CONTROLS ==================== -->
 <h2 id="controls">Controls</h2>
 
+<h3>Starting the game</h3>
+<table class="controls-table">
+  <tr><td>Click a faction row</td><td>Choose a faction and start the game</td></tr>
+  <tr><td>1 / 2 / 3</td><td>Preselect a faction</td></tr>
+  <tr><td>Up / Down arrow, Enter / Space</td><td>Confirm the selection</td></tr>
+  <tr><td>DE / EN</td><td>Switch the language of this guide (also used in the game)</td></tr>
+</table>
+
 <h3>Mouse</h3>
 <table class="controls-table">
   <tr><td>Left click + drag</td><td>Select ships (box selection)</td></tr>
-  <tr><td>Left click (without dragging)</td><td>Select a single ship or deselect</td></tr>
-  <tr><td>Right click with selected ships</td><td>Movement order: onto a planet = land there, into open space = fly there</td></tr>
-  <tr><td>Right click without selected ships</td><td>Clear selection</td></tr>
-  <tr><td>Click on mini-map</td><td>Move camera to the chosen area</td></tr>
-  <tr><td>Camera slider (right)</td><td>Change camera angle (0° = top-down, 90° = perspective)</td></tr>
+  <tr><td>Left click (without dragging)</td><td>Select one ship or clear the selection</td></tr>
+  <tr><td>Left click on your own planet</td><td>Open the planet menu</td></tr>
+  <tr><td>Right click with selected ships</td><td>Movement order: on a planet = fly there, on empty space = fly there. Combat ships do not land.</td></tr>
+  <tr><td>Right click on a planet with a transporter</td><td>The transporter flies there and lands, keeping the troops on board</td></tr>
+  <tr><td>Right click without selected ships</td><td>Clear the selection</td></tr>
+  <tr><td>Click on the mini-map</td><td>Move the camera to the chosen area</td></tr>
 </table>
 
-<h3>Keyboard in game</h3>
+<h3>Keyboard</h3>
 <table class="controls-table">
-  <tr><td>1 - 8</td><td>Select a ship group (all ships in that group are selected)</td></tr>
-  <tr><td>!, ", #, $, %, &amp;, /, (</td><td>Assign selected ships to a group (only with selected ships)</td></tr>
+  <tr><td>1 &ndash; 8</td><td>Select a group</td></tr>
+  <tr><td>Shift + 1 &ndash; 8</td><td>Assign selected ships to a group</td></tr>
   <tr><td>P</td><td>Pause on/off</td></tr>
+  <tr><td>ESC</td><td>Close the planet menu</td></tr>
 </table>
-
-<h3>Planet menu keys</h3>
 <p>
-  Open the planet menu by clicking on a planet you own.
+  Groups 1&ndash;8 are controls, not faction numbers. Shift+1 through Shift+8 work
+  on German keyboards as well.
 </p>
-<table class="controls-table">
-  <tr><td>1</td><td>Build next level (expands planet by one sector)</td></tr>
-  <tr><td>2</td><td>Produce soldiers</td></tr>
-  <tr><td>3</td><td>Build fighters (requires at least 2 sectors)</td></tr>
-  <tr><td>4</td><td>Build transporters (requires at least 3 sectors + 100 soldiers)</td></tr>
-  <tr><td>5</td><td>Advanced fighter (requires at least 4 sectors)</td></tr>
-  <tr><td>6</td><td>Build forts (requires at least 5 sectors)</td></tr>
-  <tr><td>7</td><td>Build bombers (requires at least 6 sectors)</td></tr>
-  <tr><td>8 or C</td><td>Cancel current production order</td></tr>
-  <tr><td>W or 9</td><td>Toggle infantry mode: attack → defense (only for ground troops on this planet)</td></tr>
-  <tr><td>Mouse click on "back"</td><td>Close planet menu</td></tr>
-</table>
+<p>
+  In the planet menu: 1&ndash;7 choose a build option, 8 or C sets the order to
+  &ldquo;Nothing&rdquo; (stops production), W or 9 toggles between attack and defense.
+  ESC closes the menu. Save/Load are buttons in the right-hand panel.
+</p>
 
 <!-- ==================== UNITS ==================== -->
-<h2 id="units">Units &amp; ships</h2>
+<h2 id="units">Units</h2>
 <p>
-  Ships are produced on your planets and act automatically in space:
-  combat ships hunt and shoot nearby enemy ships,
-  and transporters land on planets to land soldiers and conquer sectors.
+  Each faction has its own ship designs, but there are only three roles: fighter,
+  advanced fighter and bomber. Stats depend on the role, not on the faction design.
+  Transporters are unarmed landing ships.
 </p>
-
-<h3>Combat ships</h3>
-<p>Combat ships (types 1–9) attack enemy ships automatically when in range.</p>
 
 <div class="ship-grid">
   <div class="ship-card">
-    <img src="ship-sprites/ship_1_f1.svg" alt="Fighter">
+    <div class="variant-row">
+      <img src="ship-sprites/ship_1_f1.svg" alt="Fighter, faction 1">
+      <img src="ship-sprites/ship_4_f1.svg" alt="Fighter, faction 2">
+      <img src="ship-sprites/ship_7_f1.svg" alt="Fighter, faction 3">
+    </div>
     <div class="ship-name">Fighter</div>
-    <div class="ship-desc">Fast combat craft. High fire rate (10 shots/sec), but low per-shot damage and 75% hit chance. Low armor.</div>
+    <div class="ship-types">Types 1 / 4 / 7 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Fast and lightly armored. High rate of fire, one projectile per volley.</div>
   </div>
   <div class="ship-card">
-    <img src="ship-sprites/ship_2_f1.svg" alt="Advanced fighter">
-    <div class="ship-name">Adv. Fighter</div>
-    <div class="ship-desc">Balanced combat craft. Medium fire rate (7.5 shots/sec), 80% hit chance, medium armor.</div>
+    <div class="variant-row">
+      <img src="ship-sprites/ship_2_f1.svg" alt="Advanced fighter, faction 1">
+      <img src="ship-sprites/ship_5_f1.svg" alt="Advanced fighter, faction 2">
+      <img src="ship-sprites/ship_8_f1.svg" alt="Advanced fighter, faction 3">
+    </div>
+    <div class="ship-name">Advanced Fighter</div>
+    <div class="ship-types">Types 2 / 5 / 8 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">More armor and shield than a fighter. Two projectiles per volley, but slower.</div>
   </div>
   <div class="ship-card">
-    <img src="ship-sprites/ship_4_f1.svg" alt="Advanced fighter">
-    <div class="ship-name">Adv. Fighter</div>
-    <div class="ship-desc">Balanced combat craft. Medium fire rate (7.5 shots/sec), 80% hit chance, medium armor.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_5_f1.svg" alt="Advanced fighter">
-    <div class="ship-name">Adv. Fighter</div>
-    <div class="ship-desc">Balanced combat craft. Medium fire rate (7.5 shots/sec), 80% hit chance, medium armor.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_7_f1.svg" alt="Elite fighter">
-    <div class="ship-name">Elite Fighter</div>
-    <div class="ship-desc">Fast combat craft. High fire rate (10 shots/sec), 75% hit chance, low armor.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_8_f1.svg" alt="Elite fighter">
-    <div class="ship-name">Elite Fighter</div>
-    <div class="ship-desc">Fast combat craft. High fire rate (10 shots/sec), 75% hit chance, low armor.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_3_f1.svg" alt="Bomber">
+    <div class="variant-row">
+      <img src="ship-sprites/ship_3_f1.svg" alt="Bomber, faction 1">
+      <img src="ship-sprites/ship_6_f1.svg" alt="Bomber, faction 2">
+      <img src="ship-sprites/ship_9_f1.svg" alt="Bomber, faction 3">
+    </div>
     <div class="ship-name">Bomber</div>
-    <div class="ship-desc">Heavy ship. Low fire rate (4.3 shots/sec), but high hit chance (90%) and high per-shot damage. Strong armor, but slow.</div>
+    <div class="ship-types">Types 3 / 6 / 9 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Slow and heavily armored. Highest hit chance, several projectiles per volley and missiles.</div>
   </div>
   <div class="ship-card">
-    <img src="ship-sprites/ship_6_f1.svg" alt="Bomber">
-    <div class="ship-name">Adv. Bomber</div>
-    <div class="ship-desc">Heavy ship. Low fire rate (4.3 shots/sec), high hit chance (90%) and high per-shot damage. Strong armor, slow.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_9_f1.svg" alt="Bomber">
-    <div class="ship-name">Elite Bomber</div>
-    <div class="ship-desc">Heaviest combat craft. Low fire rate (4.3 shots/sec), high hit chance (90%) and very high per-shot damage. Very strong armor, slow.</div>
+    <div class="variant-row">
+      <img src="ship-sprites/ship_10_f1.svg" alt="Transporter, faction 1">
+      <img src="ship-sprites/ship_11_f1.svg" alt="Transporter, faction 2">
+      <img src="ship-sprites/ship_12_f1.svg" alt="Transporter, faction 3">
+    </div>
+    <div class="ship-name">Transporter</div>
+    <div class="ship-types">Types 10 / 11 / 12 &middot; <span class="f1">F1</span> / <span class="f2">F2</span> / <span class="f3">F3</span></div>
+    <div class="ship-desc">Unarmed, fast and heavily armored. Delivers 100 troops as reinforcements and founds colonies.</div>
   </div>
 </div>
 
-<h3>Transporters</h3>
+<h3>Stats and weapons</h3>
+<table class="unit-table">
+  <tr><th>Ship</th><th>Armor</th><th>Speed</th><th>Volleys per second</th><th>Hit chance</th><th>Projectiles per volley</th></tr>
+  <tr><td>Fighter</td><td>80</td><td>180</td><td>10</td><td>75 %</td><td>1</td></tr>
+  <tr><td>Advanced Fighter</td><td>110</td><td>150</td><td>7.5</td><td>80 %</td><td>2</td></tr>
+  <tr><td>Bomber</td><td>180</td><td>90</td><td>4.3</td><td>90 %</td><td>2&ndash;3 plus missiles</td></tr>
+  <tr><td>Transporter</td><td>300</td><td>300</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr>
+</table>
 <p>
-  Transporters (types 10–12) carry 100 soldiers to the target planet.
-  When they land, the soldiers are assigned to the planet and conquer sectors.
-  Transporters require 100 soldiers to build (taken from the planet).
+  These values apply to all three faction designs within a role. Shields recharge
+  one point every 10 ticks (about every 0.3 seconds) until they reach their capacity.
+  Combat ships fire automatically at enemy ships in range and do not attack planets.
 </p>
 
-<div class="ship-grid">
-  <div class="ship-card">
-    <img src="ship-sprites/ship_10_f1.svg" alt="Transporter">
-    <div class="ship-name">Transporter</div>
-    <div class="ship-desc">Transports 100 soldiers to the target planet and lands them there.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_11_f1.svg" alt="Advanced transporter">
-    <div class="ship-name">Adv. Transporter</div>
-    <div class="ship-desc">Transports 100 soldiers to the target planet and lands them there.</div>
-  </div>
-  <div class="ship-card">
-    <img src="ship-sprites/ship_12_f1.svg" alt="Elite transporter">
-    <div class="ship-name">Elite Transporter</div>
-    <div class="ship-desc">Transports 100 soldiers to the target planet and lands them there.</div>
-  </div>
-</div>
+<h3>Weapons and damage</h3>
+<table class="unit-table">
+  <tr><th>Weapon</th><th>Damage</th><th>Used by</th></tr>
+  <tr><td>Projectiles</td><td>20 per projectile</td><td>All combat ships; one to three projectiles per volley</td></tr>
+  <tr><td>Smart missile</td><td>130</td><td>Bombers of factions 1 and 2 every 30 ticks (2 seconds); planetary defense</td></tr>
+  <tr><td>Rocket</td><td>140</td><td>Faction-3 bomber (type 9) every 15 ticks (1 second)</td></tr>
+</table>
+<p>
+  A whole volley either hits or misses; hit chance is rolled once per volley.
+  Faster targets are harder to hit: every 10 points of speed difference lowers
+  hit chance by 3 percentage points, with a minimum of 20 percent.
+</p>
 
 <!-- ==================== MATCHUPS ==================== -->
-<h2 id="matchups">Matchups (rock-paper-scissors)</h2>
+<h2 id="matchups">Matchups</h2>
 <p>
-  Different ship types have advantages and disadvantages against each other:
+  Weapon damage depends on the combination of attacker and target role:
 </p>
-
-<div class="rps-box">
-  <div class="rps-row">
-    <span class="f1">Fighter</span>
-    <span class="rps-arrow">&#8594; +40% damage against </span>
-    <span class="f3">Bomber</span>
-  </div>
-  <div class="rps-row">
-    <span class="f3">Bomber</span>
-    <span class="rps-arrow">&#8594; +50% damage against </span>
-    <span style="color:#AA5500">Transporter</span>
-  </div>
-  <div class="rps-row">
-    <span style="color:#AA5500">Transporter</span>
-    <span class="rps-arrow">&#8594; +35% damage against </span>
-    <span class="f1">Fighter</span>
-  </div>
-  <div class="rps-row" style="margin-top:12px; color:#777; font-size:0.85em;">
-    Advanced fighters: +25% against bombers, –10% against transporters
-  </div>
+<table class="unit-table">
+  <tr><th>Attacker</th><th>Target</th><th>Damage</th></tr>
+  <tr><td>Fighter</td><td>Bomber</td><td>+40 %</td></tr>
+  <tr><td>Fighter</td><td>Advanced Fighter</td><td>+40 %</td></tr>
+  <tr><td>Advanced Fighter</td><td>Bomber</td><td>+25 %</td></tr>
+  <tr><td>Advanced Fighter</td><td>Transporter</td><td>&minus;10 %</td></tr>
+  <tr><td>Bomber</td><td>Transporter</td><td>+50 %</td></tr>
+  <tr><td>Transporter</td><td>&ndash;</td><td>No weapons</td></tr>
+</table>
+<p>
+  All other combinations deal normal damage (100 %). Fighters are strong against
+  bombers and advanced fighters; bombers are strong against transporters.
+  Advanced fighters are weaker against transporters than against other targets.
+</p>
+<div class="note">
+  The code contains a +35 % bonus for transporters against fighters. Transporters
+  are unarmed and never fire, so this bonus has no effect in the game.
 </div>
-
-<p>In addition:</p>
-<ul>
-  <li>Faster ships are harder to hit (3% lower hit chance per 10 units of speed difference).</li>
-  <li>Fighters fire very fast (10 shots/sec), but with 75% hit chance.</li>
-  <li>Bombers fire slowly (4.3 shots/sec), but have 90% hit chance and high damage.</li>
-  <li>Shields regenerate slowly over time.</li>
-</ul>
 
 <!-- ==================== PLANET BUILDING ==================== -->
 <h2 id="planets">Planet building</h2>
-<p>
-  Click on a planet you own to open the <strong>planet menu</strong>.
-  There you can produce units and manage the infantry.
-</p>
 
-<h3>Production requirements</h3>
-<p>Each unit requires a certain number of occupied sectors on the planet:</p>
-
+<h3>Build options</h3>
 <table class="unit-table">
-  <tr><th>Command</th><th>Requirement</th><th>Description</th></tr>
-  <tr><td>Key 1</td><td>Fewer than 8 sectors</td><td>Expand planet by one sector</td></tr>
-  <tr><td>Key 2</td><td>Infantry capacity not reached yet</td><td>Produce soldiers (max. sectors × 200)</td></tr>
-  <tr><td>Key 3</td><td>At least 2 sectors</td><td>Build fighters</td></tr>
-  <tr><td>Key 4</td><td>At least 3 sectors + 100 soldiers</td><td>Build transporters (soldiers are deducted)</td></tr>
-  <tr><td>Key 5</td><td>At least 4 sectors</td><td>Advanced fighter</td></tr>
-  <tr><td>Key 6</td><td>At least 5 sectors</td><td>Build forts (increase infantry combat strength in defense mode)</td></tr>
-  <tr><td>Key 7</td><td>At least 6 sectors</td><td>Build bombers</td></tr>
+  <tr><th>Key</th><th>Build option</th><th>Requirement</th><th>Time</th><th>Effect</th></tr>
+  <tr><td>1</td><td>Expand sector</td><td>fewer than 8 sectors</td><td>400 ticks</td><td>gain one more sector (max. 8)</td></tr>
+  <tr><td>2</td><td>Train infantry</td><td>infantry below sectors &times; 200</td><td>400 ticks</td><td>50 infantry per batch</td></tr>
+  <tr><td>3</td><td>Build fighter</td><td>at least 2 sectors, free ship slot</td><td>180 ticks</td><td>one fighter</td></tr>
+  <tr><td>4</td><td>Build transporter</td><td>at least 3 sectors, 100 infantry, free ship slot</td><td>260 ticks</td><td>transporter; costs 100 infantry when finished</td></tr>
+  <tr><td>5</td><td>Build advanced fighter</td><td>at least 4 sectors, free ship slot</td><td>240 ticks</td><td>advanced fighter</td></tr>
+  <tr><td>6</td><td>Build fort</td><td>at least 5 sectors, forts below sector count</td><td>300 ticks</td><td>one fort (defense strength in ground combat)</td></tr>
+  <tr><td>7</td><td>Build bomber</td><td>at least 6 sectors, free ship slot</td><td>350 ticks</td><td>one bomber</td></tr>
+  <tr><td>8 / C</td><td>Nothing</td><td>&ndash;</td><td>&ndash;</td><td>stop/cancel the order</td></tr>
 </table>
-
-<h3>Infantry mode (key W)</h3>
 <p>
-  On every planet occupied by several factions at the same time, the
-  <strong>ground troops</strong> fight each other. The infantry mode determines how your soldiers act:
-</p>
-<ul>
-  <li><span class="f1"><strong>Attack</strong></span> — Soldiers fight aggressively (combat strength = soldiers × living-conditions factor)</li>
-  <li><span class="f2"><strong>Defense</strong></span> — Soldiers fight defensively (+25% bonus + 25 points per fort)</li>
-</ul>
-<p>
-  <strong>Note:</strong> This mode only affects the infantry on the planet,
-  <em>not</em> the ships in space. Ships always attack enemy ships automatically.
+  Ships can only be built while the faction has fewer than 85 ships. A transporter
+  costs 100 infantry when completed; at least 100 infantry must be present when
+  the order starts.
 </p>
 
-<h3>Planet defense</h3>
-<p>If you own all 8 sectors of a planet:</p>
-<ul>
-  <li><strong>From 7 sectors:</strong> The planet has interceptor rockets against enemy ships.</li>
-  <li><strong>With 8 sectors:</strong> Additional shield (with limited HP) and more rockets.</li>
-</ul>
+<h3>Order, quantity and production</h3>
+<p>
+  &ldquo;Order&rdquo; selects the build option, &ldquo;Qty&rdquo; sets how many times
+  it is repeated. +1/+10 and &minus;1/&minus;10 increase or decrease the count
+  (default 1). At 0 production stops. Each completed batch starts the next one;
+  infantry batches produce 50 troops each. The progress bar shows the remaining time.
+  Soldiers, forts, behavior and planet status show your colony; &ldquo;all armies&rdquo;
+  shows the troops of all factions on the planet.
+</p>
 
-<h3>Conquest by transporter</h3>
+<h3>Ground troops and combat</h3>
+<ul>
+  <li>Combat happens as soon as at least one faction is on attack and more than one
+      faction is present on the planet. If all factions defend, there is no combat.</li>
+  <li>Every 5 ticks each faction rolls its combat strength; the faction with the lowest
+      roll loses 1 infantry. The faction with the higher strength does not win
+      immediately.</li>
+  <li>In defense mode there is a 3 % chance per combat that the defending faction also
+      loses one sector and possibly one fort (only with more than one sector).</li>
+  <li>If a faction's infantry drops to 0, that faction loses all sectors on the planet.</li>
+</ul>
+<table class="unit-table">
+  <tr><th>Order</th><th>Combat strength</th></tr>
+  <tr><td>Attack</td><td>infantry &times; (1 + living conditions/100)</td></tr>
+  <tr><td>Defense</td><td>infantry &times; (1 + living conditions/100) &times; 1.25 + 25 &times; forts</td></tr>
+  <tr><td>No active order</td><td>combat strength &times; 1.25</td></tr>
+</table>
+<p>
+  In combat, at most 200 infantry and at most 2 forts count; larger amounts are
+  capped when combat strength is calculated. The 25 % bonus applies only when no
+  construction order is running.
+</p>
+
+<h3>Planetary defense</h3>
+<ul>
+  <li><strong>From 7 sectors:</strong> automatic interception missiles against enemy
+      ships within a radius of 250. Fire every 60 ticks (2 seconds), magazine size 2.
+      From 8 sectors the magazine grows to 3. Reload every 150 ticks (5 seconds).</li>
+  <li><strong>From 8 sectors:</strong> a shield with hit points of 50 &times; sector
+      count (maximum 400). Enemy ships within a radius of 200 lose 6 armor every
+      10 ticks; each hit costs 1 shield hit point, and the shield regenerates 1 point
+      every 120 ticks (4 seconds).</li>
+</ul>
+<p>
+  Missiles and the shield belong to the colony that owns the planet. They fight
+  automatically without additional orders.
+</p>
+
+<h3>Transporters: founding a colony</h3>
 <ol>
-  <li>Build <strong>soldiers</strong> on your planet.</li>
-  <li>Build a <strong>transporter</strong> (requires 100 soldiers + at least 3 sectors).</li>
+  <li>Build a transporter while you have at least 100 infantry. When it is finished,
+      100 infantry are deducted.</li>
   <li>Select the transporter and right-click the target planet.</li>
-  <li>The transporter flies there and lands 100 soldiers.</li>
-  <li>If several factions occupy the same planet, the soldiers fight each other.</li>
-  <li>The faction with the higher combat strength wins and the losing one loses soldiers.</li>
+  <li>The transporter flies to the planet and lands once it is closer than 25 units.</li>
+  <li>The troops on board are added to your colony on that planet: +100 infantry.</li>
+  <li>If your colony there has 0 sectors, one sector is created: with fewer than 8
+      occupied sectors, a neutral sector is claimed. If the planet is full, one sector
+      is taken from the faction with the most sectors.</li>
+  <li>The transporter is consumed afterwards. The troops must then hold the planet in
+      ground combat.</li>
 </ol>
+<p>
+  Transporters are the only way to found a new colony on a planet. Combat ships cannot
+  land and cannot capture planets. If your colony already has at least one sector,
+  another landing only adds troops and gives no additional sector.
+</p>
 
 <!-- ==================== TIPS ==================== -->
-<h2 id="tips">Tips for beginners</h2>
+<h2 id="tips">Tips</h2>
+<div class="tip">
+  <strong>First colony:</strong> You start without a sector. Send your two starting
+  transporters to a neutral planet immediately to found your first colony.
+</div>
 <ul>
-  <li>Produce soldiers first and build up your planet (more sectors = more production options).</li>
-  <li>Build fighters early to protect your territory from enemy ships.</li>
-  <li>Transporters are the only way to conquer new planets — build them as soon as you have enough sectors and soldiers.</li>
-  <li>A planet with <strong>no active production order</strong> has 25% more infantry combat strength.</li>
-  <li>In defense mode with forts your ground troops are stronger — use that on important planets.</li>
-  <li>Don't forget to use the W key to switch between attack and defense.</li>
-  <li>Group ships with keys 1-8 for quick selection.</li>
-  <li>Save often using the Save button on the right!</li>
+  <li>More than 200 infantry and 2 forts are capped in combat. It is better to spread
+      troops across several planets than to pile everything onto one.</li>
+  <li>Infantry without an active order get a +25 % combat bonus; this can make a
+      defense stronger than a running construction order.</li>
+  <li>Defense mode is worthwhile for planets you do not want to give up: defense gets
+      a 25 % bonus and forts, but has the 3 % chance of losing a sector.</li>
+  <li>Combat ships are faster and hit better when the target is slower. Fighters are
+      strong against bombers and advanced fighters; bombers are strong against
+      transporters.</li>
+  <li>With 7 sectors you get automatic missiles, with 8 sectors a shield. Expanding
+      to 8 sectors is worthwhile for important planets.</li>
+  <li>Groups are selected with 1&ndash;8 and assigned with Shift+1&ndash;Shift+8,
+      so you can steer fleets separately.</li>
+  <li>Save and load with the buttons in the right-hand panel. Pause with P.</li>
+  <li>The camera slider on the left shows 90&deg; (flat side view), on the right
+      0&deg; (directly from above); intermediate values are perspective views.</li>
 </ul>
 
 <div class="tip">
-  <strong>Have fun playing!</strong>
+  <strong>Have fun!</strong>
 </div>
 
 <hr style="border-color: rgba(255,255,255,0.06); margin: 40px 0 20px 0;">

@@ -83,7 +83,7 @@ var LANG = {
     'back': 'zur\u00fcck',
 
     /* === Keyboard hints (planeten.js) === */
-    'key_hints': 'Tasten: 1-7=Bauen C=Abbrechen W=Angriff/Verteidigung ESC=Zurueck',
+    'key_hints': 'Tasten: 1-7=Bauen 8/C=Nichts W/9=Kampfmodus ESC=Zurueck',
 
     /* === Language toggle button === */
     'lang_de': 'DE',
@@ -162,7 +162,7 @@ var LANG = {
     'back': 'back',
 
     /* === Keyboard hints (planeten.js) === */
-    'key_hints': 'Keys: 1-7=Build C=Cancel W=Attack/Defense ESC=Back',
+    'key_hints': 'Keys: 1-7=Build 8/C=Nothing W/9=Combat ESC=Back',
 
     /* === Language toggle button === */
     'lang_de': 'DE',
