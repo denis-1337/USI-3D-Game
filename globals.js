@@ -12,6 +12,12 @@ var curH = 0;
 var GameAreaWidth  = 0;
 var GameAreaHeight = 0;
 
+/* UI scale factor derived from the window size.
+ * 1.0 = the original 640x480 reference layout.
+ * All UI text, buttons and menus are scaled by this factor so the
+ * retro UI stays readable on large monitors. */
+var uiScale = 1;
+
 /* ===== Camera ===== */
 var bx = 0;
 var by = 0;

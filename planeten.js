@@ -1216,207 +1216,313 @@ function planetDefenses() {
 }
 
 /* ================================================================ */
-/* pmenu — Draw planet detail menu panel                            */
+/* Planet menu layout — shared by pmenu (renderer) and input.js     */
+/* so click boxes always match what is drawn.                       */
+/* Design size is 520x400 base units (height shrinks when fewer build
+ * options are available); everything scales with `s`.              */
 /* ================================================================ */
-function pmenu(p) {
-  var i, j, shipColor;
-  var k = p.k[snr - 1];  /* player's colony on this planet */
-  var si2, x, y, barLen;
-  var menuX, menuY;
-  var mmX, mmY;
-  var mmPanelW, mmPanelH;
-  var effW, effH;
-  var pX, pW;
-  var mmPx, mmPy;
-  var mm_effH, mm_y;
-  var mm_by_scale, mm_div;
+var PLANET_MENU_BASE_W = 520;
+var PLANET_MENU_BASE_H = 400;
+var PM_BTN_W = 190;
+var PM_BTN_H = 26;
+var PM_BTN_TOP = 54;
+var PM_BTN_STRIDE = 30;
+var PM_COL_A_X = 110;
+var PM_COL_B_X = 305;
+var PM_QTY_Y = 210;
+var PM_QTY_H = 26;
+var PM_QTY_W = 28;
+var PM_QTY_DEFS = [
+  { id: -10, x: 200 }, { id: -1, x: 232 },
+  { id: 1,  x: 264 }, { id: 10, x: 296 }
+];
 
-  var MENU_W = 500;
-  var MENU_H = 340;
+/* Enabled production entries (labels depend on language + state) */
+function getPlanetMenuActiveEntries(p) {
+  var k = p.k[snr - 1];
+  var fs = factionStats[snr - 1];
+  var entries = [];
 
-  /* Compute menu position: centered in game area */
-  menuX = Math.floor((GameAreaWidth - MENU_W) / 2);
-  menuY = Math.floor((GameAreaHeight - MENU_H) / 2);
-  if (menuX < 0) menuX = 0;
-  if (menuY < 0) menuY = 0;
+  function add(id, label) { entries.push({ id: id, label: label }); }
 
-  /* Right-side minimap position */
-  pX = GameAreaWidth + 5;
-  pW = curW - pX;
-  if (pW < 40) pW = 40;
+  if (p.a < 8) add(1, t('next_level'));
+  if (k.a * 200 > k.inf) add(2, t('soldiers'));
+  if (k.a > 1 && fs.an < fs.max) add(3, t('fighter'));
+  if (k.inf >= 100 && k.a > 2 && fs.an < fs.max) add(4, t('transporter'));
+  if (k.a > 3 && fs.an < fs.max) add(5, t('adv_fighter'));
+  if (k.a > 4 && k.a > k.def) add(6, t('forts'));
+  if (k.a > 5 && fs.an < fs.max) add(7, t('bomber'));
+  add(8, t('nothing'));
 
-  mmX = pX;
-  mmPanelW = pW;
+  return entries;
+}
 
-  mmPanelH = 102;
-  if (mmPanelH > curH) mmPanelH = curH;
-  mmY = 0;
+function getPlanetMenuLayout(p) {
+  var entries = p ? getPlanetMenuActiveEntries(p) : null;
+  var rows = entries ? Math.ceil(entries.length / 2) : 4;
+  if (rows < 1) rows = 1;
 
-  /* ===== TOP ROW: Level + Planet name ===== */
-  DrawText(menuX + 50, menuY + 20, 'Level', 7);
-  DrawText(menuX + 100, menuY + 20, String(k.a), 7);
+  /* Shrink the panel when fewer build options are available, so there
+   * is no large empty gap in the middle of the menu. */
+  var delta = (4 - rows) * PM_BTN_STRIDE;
+  var baseH = PLANET_MENU_BASE_H - delta;
 
-  /* Planet name centered-top */
-  DrawText(menuX + 240, menuY + 20, p.name, 15);
+  var s = uiScale || 1;
+  var margin = 16;
+  /* Reserve space for the keyboard hints drawn below the panel */
+  var hintSpace = Math.round(24 * (uiScale || 1));
+  var maxW = Math.max(300, GameAreaWidth - margin * 2);
+  var maxH = Math.max(220, GameAreaHeight - margin * 2 - hintSpace);
+  if (PLANET_MENU_BASE_W * s > maxW) s = maxW / PLANET_MENU_BASE_W;
+  if (baseH * s > maxH) s = maxH / baseH;
+  if (s < 0.5) s = 0.5;
+  var w = Math.round(PLANET_MENU_BASE_W * s);
+  var h = Math.round(baseH * s);
+  var x = Math.round((GameAreaWidth - w) / 2);
+  var y = Math.round((GameAreaHeight - h) / 2);
+  if (x < 0) x = 0;
+  if (y < 0) y = 0;
+  return {
+    x: x, y: y, w: w, h: h, s: s,
+    baseH: baseH, delta: delta, rows: rows
+  };
+}
 
-  /* ===== Bauen: production options ===== */
-  DrawText(menuX + 50, menuY + 70, t('build_label'), 7);
+/* Convert a base-design rectangle to real pixels */
+function pmRect(L, bx, by, bw, bh) {
+  return {
+    x: L.x + Math.round(bx * L.s),
+    y: L.y + Math.round(by * L.s),
+    w: Math.round(bw * L.s),
+    h: Math.round(bh * L.s)
+  };
+}
 
-  /* --- Left column buttons --- */
+/* Build buttons for the planet menu.
+ * Available options are packed row-major so disabled upgrades do not
+ * leave empty slots in the grid. */
+function getPlanetMenuButtons(p) {
+  var entries = getPlanetMenuActiveEntries(p);
+  var L = getPlanetMenuLayout(p);
+  var list = [];
 
-  /* 1. "nächstes Level" */
-  if (p.a < 8) {
-    DrawRect(menuX + 115, menuY + 65, 120, 15, 7);
-    DrawText(menuX + 120, menuY + 72, t('next_level'), 14);
+  for (var i = 0; i < entries.length; i++) {
+    var col = i % 2;
+    var row = Math.floor(i / 2);
+    var baseX = col === 0 ? PM_COL_A_X : PM_COL_B_X;
+    var baseY = PM_BTN_TOP + row * PM_BTN_STRIDE;
+    list.push({
+      id: entries[i].id,
+      label: entries[i].label,
+      rect: pmRect(L, baseX, baseY, PM_BTN_W, PM_BTN_H)
+    });
   }
 
-  /* 2. "Soldaten" */
-  if (k.a * 200 > k.inf) {
-    DrawRect(menuX + 115, menuY + 85, 120, 15, 7);
-    DrawText(menuX + 120, menuY + 92, t('soldiers'), 14);
+  return list;
+}
+
+/* Quantity +/- buttons (vertical offset depends on the panel height) */
+function getPlanetMenuQuantityButtons(p) {
+  var L = getPlanetMenuLayout(p);
+  var y = PM_QTY_Y - L.delta;
+  var list = [];
+  for (var i = 0; i < PM_QTY_DEFS.length; i++) {
+    var d = PM_QTY_DEFS[i];
+    list.push({
+      id: d.id,
+      rect: pmRect(L, d.x, y, PM_QTY_W, PM_QTY_H)
+    });
   }
+  return list;
+}
 
-  /* 3. "Jäger" */
-  if (k.a > 1 && factionStats[snr - 1].an < factionStats[snr - 1].max) {
-    DrawRect(menuX + 115, menuY + 105, 120, 15, 7);
-    DrawText(menuX + 120, menuY + 112, t('fighter'), 14);
-  }
+/* Behavior toggle and back button hit boxes */
+function getPlanetMenuBehaviorRect(p) {
+  var L = getPlanetMenuLayout(p);
+  return pmRect(L, 140, 296 - L.delta, 175, 28);
+}
 
-  /* 4. "Transporter" */
-  if (k.inf >= 100 && k.a > 2 && factionStats[snr - 1].an < factionStats[snr - 1].max) {
-    DrawRect(menuX + 115, menuY + 125, 120, 15, 7);
-    DrawText(menuX + 120, menuY + 132, t('transporter'), 14);
-  }
-
-  /* --- Right column buttons --- */
-
-  /* 5. "Adv. Jäger" */
-  if (k.a > 3 && factionStats[snr - 1].an < factionStats[snr - 1].max) {
-    DrawRect(menuX + 265, menuY + 65, 120, 15, 7);
-    DrawText(menuX + 270, menuY + 72, t('adv_fighter'), 14);
-  }
-
-  /* 6. "Forts" */
-  if (k.a > 4 && k.a > k.def) {
-    DrawRect(menuX + 265, menuY + 85, 120, 15, 7);
-    DrawText(menuX + 270, menuY + 92, t('forts'), 14);
-  }
-
-  /* 7. "Bomber" */
-  if (k.a > 5 && factionStats[snr - 1].an < factionStats[snr - 1].max) {
-    DrawRect(menuX + 265, menuY + 105, 120, 15, 7);
-    DrawText(menuX + 270, menuY + 112, t('bomber'), 14);
-  }
-
-  /* "Nichts" — cancel production */
-  DrawRect(menuX + 265, menuY + 125, 120, 15, 7);
-  DrawText(menuX + 270, menuY + 132, t('nothing'), 14);
-
-  /* ===== Auftrag: current order ===== */
-  DrawText(menuX + 50, menuY + 155, t('order_label'), 7);
-
-  switch (k.auf) {
-    case 0: DrawText(menuX + 120, menuY + 155, t('nothing'), 8); break;
-    case 1: DrawText(menuX + 120, menuY + 155, t('short_next_level'), 14); break;
-    case 2: DrawText(menuX + 120, menuY + 155, t('soldiers'), 14); break;
-    case 3: DrawText(menuX + 120, menuY + 155, t('fighter'), 14); break;
-    case 4: DrawText(menuX + 120, menuY + 155, t('transporter'), 14); break;
-    case 5: DrawText(menuX + 120, menuY + 155, t('adv_fighter'), 14); break;
-    case 6: DrawText(menuX + 120, menuY + 155, t('forts'), 14); break;
-    case 7: DrawText(menuX + 120, menuY + 155, t('bomber'), 14); break;
-  }
-
-  /* ===== Anzahl: quantity control ===== */
-  DrawText(menuX + 50, menuY + 170, t('quantity_label'), 7);
-  DrawText(menuX + 120, menuY + 170, String(k.m), 7);
-
-  /* +1 button */
-  DrawRect(menuX + 190, menuY + 162, 24, 14, 7);
-  DrawText(menuX + 197, menuY + 167, '+', 14);
-
-  /* -1 button */
-  DrawRect(menuX + 190, menuY + 178, 24, 14, 7);
-  DrawText(menuX + 197, menuY + 183, '-', 14);
-
-  /* +10 button */
-  DrawRect(menuX + 218, menuY + 162, 24, 14, 7);
-  DrawText(menuX + 225, menuY + 167, '10', 14);
-
-  /* -10 button */
-  DrawRect(menuX + 218, menuY + 178, 24, 14, 7);
-  DrawText(menuX + 225, menuY + 183, '10', 14);
-
-  /* ===== Info: planet intelligence ===== */
-  DrawText(menuX + 50, menuY + 205, t('info_label'), 7);
-
-  DrawText(menuX + 120, menuY + 205, t('soldiers_label'), 7);
-  DrawText(menuX + 190, menuY + 205, String(k.inf), 7);
-
-  DrawText(menuX + 120, menuY + 225, t('forts_label'), 7);
-  DrawText(menuX + 190, menuY + 225, String(k.def), 7);
-
-  DrawText(menuX + 120, menuY + 245, t('behavior_label'), 7);
-
-  if (k.war === 1)
-    DrawText(menuX + 220, menuY + 247, t('attack_mode'), 12);
-  else
-    DrawText(menuX + 220, menuY + 247, t('defense_mode'), 10);
-
-  DrawRect(menuX + 215, menuY + 240, 120, 15, 7);
-
-  /* Planet war status */
-  DrawText(menuX + 120, menuY + 265, t('planet_label'), 7);
-  if (p.war)
-    DrawText(menuX + 220, menuY + 265, t('war_status'), 12);
-  else
-    DrawText(menuX + 220, menuY + 265, t('peace_status'), 10);
-
-  /* ===== alle Armeen: all factions' troops ===== */
-  DrawText(menuX + 120, menuY + 285, t('all_armies_label'), 7);
-
-  DrawText(menuX + 230, menuY + 285, String(p.k[0].inf), 11);
-  DrawText(menuX + 230, menuY + 305, String(p.k[1].inf), 10);
-  DrawText(menuX + 230, menuY + 325, String(p.k[2].inf), 15);
-
-  /* ===== Schild / Raketen: planetary defenses ===== */
-  DrawText(menuX + 270, menuY + 205, t('shield_label'), 7);
-  if (k.a < 8)
-    DrawText(menuX + 350, menuY + 205, t('inactive'), 8);
-  else if (k.shieldHP > 0)
-    DrawText(menuX + 350, menuY + 205, String(k.shieldHP) + '/' + String(k.maxShieldHP), 10);
-  else
-    DrawText(menuX + 350, menuY + 205, t('destroyed'), 4);
-
-  DrawText(menuX + 270, menuY + 225, t('rockets_label'), 7);
-  if (k.a < 7)
-    DrawText(menuX + 350, menuY + 225, t('inactive'), 8);
-  else {
-    var maxAmmo = k.a >= 8 ? 3 : 2;
-    var currentAmmo = k.rocketAmmo || 0;
-    DrawText(menuX + 350, menuY + 225, String(currentAmmo) + '/' + String(maxAmmo), 10);
-  }
-
-  /* ===== Production progress bar ===== */
-  if (k.auf > 0) {
-    if (k.max > 0)
-      barLen = Math.trunc(k.x / k.max * 200);
-    else
-      barLen = 0;
-
-    if (barLen > 0)
-      DrawLine(menuX + 100, menuY + 200, menuX + 100 + barLen, menuY + 200, 14);
-  }
-
-  /* ===== zurueck button: exit planet view ===== */
-  DrawRect(menuX + 385, menuY + 300, 110, 30, 7);
-  DrawText(menuX + 390, menuY + 312, t('back'), 7);
-
-  /* ===== Keyboard hints ===== */
-  DrawText(5, GameAreaHeight - 10, t('key_hints'), 8);
-
+function getPlanetMenuBackRect(p) {
+  var L = getPlanetMenuLayout(p);
+  return pmRect(L, 400, 352 - L.delta, 100, 36);
 }
 
 /* ================================================================ */
+/* pmenu — Draw planet detail menu panel                            */
+/* Scaled with the window (uiScale) and centred in the game area.   */
+/* ================================================================ */
+function pmenu(p) {
+  var k = p.k[snr - 1];
+  var L = getPlanetMenuLayout(p);
+  var S = L.s;
+
+  function PX(v) { return L.x + Math.round(v * S); }
+  function PY(v) { return L.y + Math.round(v * S); }
+  function PYB(v) { return L.y + Math.round((v - L.delta) * S); }
+  function FS(base) { return Math.max(8, Math.round(base * S)); }
+
+  /* ===== Panel background + border ===== */
+  DrawFilledRectUnclipped(L.x, L.y, L.w, L.h, 0);
+  DrawRect(L.x, L.y, L.w, L.h, 15);
+  DrawRect(L.x + 1, L.y + 1, L.w - 2, L.h - 2, 8);
+
+  /* Header bar */
+  DrawFilledRectUnclipped(L.x + 2, L.y + 2, L.w - 4, Math.round(30 * S), 8);
+
+  /* ===== TOP ROW: Level + Planet name ===== */
+  var lvlFont = FS(11);
+  var lvlLabel = t('level_label');
+  DrawText(PX(16), PY(14), lvlLabel, 7, lvlFont);
+  DrawText(PX(16) + MeasureTextPx(lvlLabel, lvlFont) + Math.round(6 * S), PY(14),
+           String(k.a), 15, lvlFont);
+
+  /* Planet name centered-top (name lengths differ) */
+  DrawTextCentered(L.x + L.w / 2, PY(10), p.name, 15, FS(15));
+
+  /* Separator below header */
+  DrawLine(PX(12), PY(34), PX(508), PY(34), 8);
+
+  /* ===== Bauen: production options ===== */
+  DrawText(PX(16), PY(44), t('build_label'), 15, FS(11));
+
+  var btnFont = FS(11);
+  var buttons = getPlanetMenuButtons(p);
+  for (var i = 0; i < buttons.length; i++) {
+    var b = buttons[i];
+    var r = b.rect;
+    var active = (b.id === k.auf);
+    DrawFilledRectUnclipped(r.x, r.y, r.w, r.h, 8);
+    DrawRect(r.x, r.y, r.w, r.h, active ? 14 : 15);
+    var tw = MeasureTextPx(b.label, btnFont);
+    var tx = Math.round(r.x + (r.w - tw) / 2);
+    var ty = Math.round(r.y + (r.h - btnFont * 0.8) / 2);
+    DrawText(tx, ty, b.label, active ? 14 : 15, btnFont);
+  }
+
+  /* Separator below build section */
+  DrawLine(PX(12), PYB(178), PX(508), PYB(178), 8);
+
+  /* ===== Auftrag: current order ===== */
+  DrawText(PX(16), PYB(188), t('order_label'), 7, FS(11));
+  var orderText = '';
+  switch (k.auf) {
+    case 0: orderText = t('nothing'); break;
+    case 1: orderText = t('short_next_level'); break;
+    case 2: orderText = t('soldiers'); break;
+    case 3: orderText = t('fighter'); break;
+    case 4: orderText = t('transporter'); break;
+    case 5: orderText = t('adv_fighter'); break;
+    case 6: orderText = t('forts'); break;
+    case 7: orderText = t('bomber'); break;
+  }
+  DrawText(PX(110), PYB(188), orderText, k.auf === 0 ? 8 : 14, FS(11));
+
+  /* ===== Production progress bar ===== */
+  if (k.auf > 0) {
+    var barLen = k.max > 0 ? Math.trunc(k.x / k.max * 300) : 0;
+    if (barLen > 0) {
+      var barY = PYB(200);
+      var barH = Math.max(4, Math.round(5 * S));
+      DrawFilledRectUnclipped(PX(110), barY, Math.round(300 * S), barH, 8);
+      DrawFilledRectUnclipped(PX(110), barY, Math.round(barLen * S), barH, 10);
+      DrawRect(PX(110), barY, Math.round(300 * S), barH, 15);
+    }
+  }
+
+  /* ===== Anzahl: quantity control ===== */
+  DrawText(PX(16), PYB(218), t('quantity_label'), 7, FS(11));
+  DrawText(PX(110), PYB(218), String(k.m), 15, FS(11));
+
+  var qtyFont = FS(11);
+  var qty = getPlanetMenuQuantityButtons(p);
+  for (var i = 0; i < qty.length; i++) {
+    var q = qty[i];
+    var qr = q.rect;
+    var lbl = q.id > 0 ? '+' + q.id : String(q.id);
+    DrawFilledRectUnclipped(qr.x, qr.y, qr.w, qr.h, 8);
+    DrawRect(qr.x, qr.y, qr.w, qr.h, 15);
+    var qw = MeasureTextPx(lbl, qtyFont);
+    DrawText(Math.round(qr.x + (qr.w - qw) / 2),
+             Math.round(qr.y + (qr.h - qtyFont * 0.8) / 2),
+             lbl, 15, qtyFont);
+  }
+
+  /* Separator below order/quantity */
+  DrawLine(PX(12), PYB(248), PX(508), PYB(248), 8);
+
+  /* ===== Info rows ===== */
+  var labelFont = FS(11);
+  var valFont = FS(11);
+
+  /* Left column: soldiers, forts, behavior toggle, planet status */
+  DrawText(PX(16), PYB(258), t('soldiers_label'), 7, labelFont);
+  DrawText(PX(140), PYB(258), String(k.inf), 15, valFont);
+
+  DrawText(PX(16), PYB(282), t('forts_label'), 7, labelFont);
+  DrawText(PX(140), PYB(282), String(k.def), 15, valFont);
+
+  DrawText(PX(16), PYB(306), t('behavior_label'), 7, labelFont);
+  var beh = getPlanetMenuBehaviorRect(p);
+  DrawFilledRectUnclipped(beh.x, beh.y, beh.w, beh.h, 8);
+  DrawRect(beh.x, beh.y, beh.w, beh.h, 15);
+  var behText = k.war === 1 ? t('attack_mode') : t('defense_mode');
+  var behColor = k.war === 1 ? 12 : 10;
+  var behW = MeasureTextPx(behText, valFont);
+  DrawText(Math.round(beh.x + (beh.w - behW) / 2),
+           Math.round(beh.y + (beh.h - valFont * 0.8) / 2),
+           behText, behColor, valFont);
+
+  DrawText(PX(16), PYB(330), t('planet_label'), 7, labelFont);
+  var psText = p.war ? t('war_status') : t('peace_status');
+  DrawText(PX(140), PYB(330), psText, p.war ? 12 : 10, valFont);
+
+  /* Right column: shield, rockets */
+  DrawText(PX(330), PYB(258), t('shield_label'), 7, labelFont);
+  var shieldText, shieldColor;
+  if (k.a < 8) {
+    shieldText = t('inactive'); shieldColor = 8;
+  } else if (k.shieldHP > 0) {
+    shieldText = String(k.shieldHP) + '/' + String(k.maxShieldHP); shieldColor = 10;
+  } else {
+    shieldText = t('destroyed'); shieldColor = 4;
+  }
+  DrawText(PX(430), PYB(258), shieldText, shieldColor, valFont);
+
+  DrawText(PX(330), PYB(282), t('rockets_label'), 7, labelFont);
+  if (k.a < 7) {
+    DrawText(PX(430), PYB(282), t('inactive'), 8, valFont);
+  } else {
+    var maxAmmo = k.a >= 8 ? 3 : 2;
+    var currentAmmo = k.rocketAmmo || 0;
+    DrawText(PX(430), PYB(282), String(currentAmmo) + '/' + String(maxAmmo), 10, valFont);
+  }
+
+  /* ===== alle Armeen: all factions' troops ===== */
+  DrawText(PX(330), PYB(306), t('all_armies_label'), 7, labelFont);
+  var armyColors = [12, 10, 14];
+  var armyX = [330, 370, 410];
+  for (var i = 0; i < 3; i++) {
+    DrawText(PX(armyX[i]), PYB(330), String(p.k[i].inf), armyColors[i], valFont);
+  }
+
+  /* ===== zurueck button: exit planet view ===== */
+  var back = getPlanetMenuBackRect(p);
+  DrawFilledRectUnclipped(back.x, back.y, back.w, back.h, 8);
+  DrawRect(back.x, back.y, back.w, back.h, 15);
+  var backFont = FS(12);
+  var backW = MeasureTextPx(t('back'), backFont);
+  DrawText(Math.round(back.x + (back.w - backW) / 2),
+           Math.round(back.y + (back.h - backFont * 0.8) / 2),
+           t('back'), 15, backFont);
+
+  /* ===== Keyboard hints (bottom-left of the game area) ===== */
+  var hintFont = Math.max(8, Math.round(10 * uiScale));
+  DrawText(Math.round(6 * uiScale),
+           GameAreaHeight - hintFont - Math.round(4 * uiScale),
+           t('key_hints'), 8, hintFont);
+}
+
+
 /* --- Functions from ai.pas (moved here as they are core logic) --- */
 /* ================================================================ */
 

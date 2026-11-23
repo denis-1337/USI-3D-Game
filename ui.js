@@ -49,20 +49,65 @@ function getPanelLayout() {
   return { panelX: panelX, panelW: panelW };
 }
 
+/* Scaled UI pixel helper: 1.0 at 640x480 reference size */
+function uiPx(base) {
+  return Math.max(1, Math.round(base * uiScale));
+}
+
+/* First Y below the minimap, where panel content starts */
+function getPanelContentY() {
+  return mmY + mmSize + uiPx(8);
+}
+
+/* Camera slider hit box (shared by renderer and input.js) */
+function getCameraSliderRect(panelX, startY) {
+  var pad = uiPx(8);
+  var panelW = curW - panelX;
+  return {
+    x: panelX + pad,
+    y: startY + uiPx(18),
+    w: Math.max(20, panelW - pad * 2),
+    h: Math.max(6, uiPx(10))
+  };
+}
+
+/* Save/Load button hit boxes (shared by renderer and input.js) */
+function getSaveLoadButtons(panelX, startY) {
+  var pad = uiPx(8);
+  var panelW = curW - panelX;
+  var btnW = Math.min(Math.max(40, panelW - pad * 2), uiPx(90));
+  var btnH = uiPx(26);
+  var gap = uiPx(6);
+  return {
+    save: { x: panelX + pad, y: startY, w: btnW, h: btnH },
+    load: { x: panelX + pad, y: startY + btnH + gap, w: btnW, h: btnH }
+  };
+}
+
+/* Draw a simple framed button with centered label */
+function drawTextButton(r, label, colorIdx, fontPx) {
+  DrawFilledRectUnclipped(r.x, r.y, r.w, r.h, 8);
+  DrawRect(r.x, r.y, r.w, r.h, 15);
+  var tw = MeasureTextPx(label, fontPx);
+  var tx = Math.round(r.x + (r.w - tw) / 2);
+  var ty = Math.round(r.y + (r.h - fontPx * 0.8) / 2);
+  DrawText(tx, ty, label, colorIdx, fontPx);
+}
+
 /* ================================================================ */
 /* renderUI — Main UI render function (called each frame)            */
 /* ================================================================ */
 function renderUI() {
+  /* Clear overlay canvas every frame — use canvas dimensions, not curW/curH */
+  var ctx = overlayCtx;
+  if (ctx) {
+    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+  }
+
   /* Player selection screen (shown before game starts) */
   if (typeof isPlayerSelectionActive === 'function' && isPlayerSelectionActive()) {
     renderPlayerSelection();
     return;
-  }
-
-  /* Clear overlay canvas — use canvas dimensions, not curW/curH */
-  var ctx = overlayCtx;
-  if (ctx) {
-    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
   }
 
   if (pview) {
@@ -98,7 +143,7 @@ function renderSidePanel() {
   DrawRect(mmX, mmY, mmSize, mmSize, 15);
 
   /* Gap between minimap and content below */
-  var contentY = mmY + mmSize + 10;
+  var contentY = getPanelContentY();
 
   /* Viewport rectangle/trapezoid on minimap */
   renderMinimapViewportRect();
@@ -107,10 +152,12 @@ function renderSidePanel() {
   renderCameraAngleSlider(panelX, contentY);
 
   /* Save/Load buttons */
-  renderSaveLoadButtons(panelX, contentY + 42);
+  var btnY = contentY + uiPx(40);
+  renderSaveLoadButtons(panelX, btnY);
 
   /* Faction ship counts */
-  renderFactionInfo(panelX, contentY + 105);
+  var infoY = btnY + uiPx(26) * 2 + uiPx(6) + uiPx(8);
+  renderFactionInfo(panelX, infoY);
 }
 
 /* ================================================================ */
@@ -122,7 +169,7 @@ function renderMinimapViewportRect() {
   if (!ctx) return;
 
   ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = Math.max(1.5, uiScale);
 
   /* Compute visible world bounds from the Three.js camera.
    * We project the four corners of the camera's near plane onto the
@@ -350,6 +397,9 @@ function renderMinimapEntities() {
   var ctx = overlayCtx;
   if (!ctx) return;
 
+  /* Scale the dots with the minimap/window size (minimum 2x2) */
+  var dot = Math.max(2, Math.round(2 * uiScale));
+
   /* Draw planets as white dots */
   ctx.fillStyle = '#ffffff';
   for (var i = 0; i < planets.length; i++) {
@@ -362,17 +412,17 @@ function renderMinimapEntities() {
     } else {
       ctx.fillStyle = '#ffffff';
     }
-    ctx.fillRect(Math.floor(px), Math.floor(py), 2, 2);
+    ctx.fillRect(Math.floor(px), Math.floor(py), dot, dot);
   }
 
-  /* Draw ships as colored dots (minimum 2x2) */
+  /* Draw ships as colored dots */
   for (var i = 0; i < maxships; i++) {
     if (!ships[i].ex) continue;
     var color = FACTION_COLORS_MAP[ships[i].gr] || '#888888';
     ctx.fillStyle = color;
     var sx = mmX + (ships[i].s.x / seite) * mmSize;
     var sy = mmY + (ships[i].s.y / seite) * mmSize;
-    ctx.fillRect(Math.floor(sx), Math.floor(sy), 2, 2);
+    ctx.fillRect(Math.floor(sx), Math.floor(sy), dot, dot);
   }
 }
 
@@ -380,15 +430,20 @@ function renderMinimapEntities() {
 /* renderCameraAngleSlider — Draw tilt angle slider in panel         */
 /* ================================================================ */
 function renderCameraAngleSlider(panelX, startY) {
+  var pad = uiPx(8);
+  var fontPx = uiPx(11);
 
-  var panelW = curW - panelX;
-  DrawText(panelX + 5, startY, t('camera_label'), 13);
-  DrawText(panelX + 70, startY, String(Math.round(cameraTiltAngle)) + '\u00b0', 13);
+  var label = t('camera_label');
+  DrawText(panelX + pad, startY, label, 13, fontPx);
+  DrawText(panelX + pad + MeasureTextPx(label, fontPx) + uiPx(6), startY,
+           String(Math.round(cameraTiltAngle)) + '\u00b0', 11, fontPx);
+
   /* Draw a simple slider bar */
-  var sliderX = panelX + 5;
-  var sliderY = startY + 10;
-  var sliderW = panelW - 10;
-  var sliderH = 8;
+  var r = getCameraSliderRect(panelX, startY);
+  var sliderX = r.x;
+  var sliderY = r.y;
+  var sliderW = r.w;
+  var sliderH = r.h;
   var sliderVal = cameraTiltAngle / 90; /* 0..90 degrees mapped to 0..1 */
   if (sliderVal < 0) sliderVal = 0;
   if (sliderVal > 1) sliderVal = 1;
@@ -401,28 +456,21 @@ function renderCameraAngleSlider(panelX, startY) {
   /* Border — white (VGA 15) */
   DrawRect(sliderX, sliderY, sliderW, sliderH, 15);
   /* Thumb — grey (VGA 7=light grey, 8=dark grey border) */
-  var thumbX = sliderX + sliderW * (1 - sliderVal) - 4;
-  DrawFilledRectUnclipped(thumbX, sliderY - 2, 8, sliderH + 4, 7);
-  DrawRect(thumbX, sliderY - 2, 8, sliderH + 4, 8);
+  var thumbW = uiPx(8);
+  var thumbX = sliderX + sliderW * (1 - sliderVal) - thumbW / 2;
+  DrawFilledRectUnclipped(thumbX, sliderY - uiPx(2), thumbW, sliderH + uiPx(4), 7);
+  DrawRect(thumbX, sliderY - uiPx(2), thumbW, sliderH + uiPx(4), 8);
 }
 
 /* ================================================================ */
 /* renderSaveLoadButtons — Render Save/Load buttons                  */
 /* ================================================================ */
 function renderSaveLoadButtons(panelX, startY) {
-  var saveText = t('save_btn');
-  var loadText = t('load_btn');
-  var btnW = 80;
+  var fontPx = uiPx(11);
+  var btns = getSaveLoadButtons(panelX, startY);
 
-  /* Save button — center text */
-  DrawRect(panelX + 10, startY, btnW, 20, 15);
-  var saveW = overlayCtx ? overlayCtx.measureText(saveText).width : 60;
-  DrawText(panelX + 10 + Math.round((btnW - saveW) / 2), startY + 8, saveText, 7);
-
-  /* Load button — center text */
-  DrawRect(panelX + 10, startY + 30, btnW, 20, 15);
-  var loadW = overlayCtx ? overlayCtx.measureText(loadText).width : 30;
-  DrawText(panelX + 10 + Math.round((btnW - loadW) / 2), startY + 38, loadText, 7);
+  drawTextButton(btns.save, t('save_btn'), 15, fontPx);
+  drawTextButton(btns.load, t('load_btn'), 15, fontPx);
 }
 
 /* ================================================================ */
@@ -430,16 +478,26 @@ function renderSaveLoadButtons(panelX, startY) {
 /* ================================================================ */
 function renderFactionInfo(panelX, startY) {
   var fs = factionStats[snr - 1];
+  var pad = uiPx(8);
+  var rowH = uiPx(22);
+  var fontPx = uiPx(11);
 
-  DrawText(panelX + 10, startY, t('fighter_label'), 14);
-  DrawText(panelX + 10, startY + 15, t('adv_fighter_label'), 14);
-  DrawText(panelX + 10, startY + 30, t('bomber_label'), 14);
-  DrawText(panelX + 10, startY + 45, t('transporter_label'), 14);
+  var labels = [t('fighter_label'), t('adv_fighter_label'),
+                t('bomber_label'), t('transporter_label')];
+  var values = [String(fs.j), String(fs.aj), String(fs.b), String(fs.t)];
 
-  DrawText(panelX + 100, startY, String(fs.j), 14);
-  DrawText(panelX + 100, startY + 15, String(fs.aj), 14);
-  DrawText(panelX + 100, startY + 30, String(fs.b), 14);
-  DrawText(panelX + 100, startY + 45, String(fs.t), 14);
+  /* Place the values after the widest label (language strings differ) */
+  var labelW = 0;
+  for (var i = 0; i < labels.length; i++) {
+    var w = MeasureTextPx(labels[i], fontPx);
+    if (w > labelW) labelW = w;
+  }
+  var valueX = panelX + pad + labelW + uiPx(6);
+
+  for (var i = 0; i < labels.length; i++) {
+    DrawText(panelX + pad, startY + i * rowH, labels[i], 14, fontPx);
+    DrawText(valueX, startY + i * rowH, values[i], 15, fontPx);
+  }
 }
 
 /* ================================================================ */
@@ -516,7 +574,8 @@ function renderCursor() {
 /* renderPauseIndicator — Show "PAUSED" text when paused             */
 /* ================================================================ */
 function renderPauseIndicator() {
-  DrawText(curW / 2 - 30, curH / 2 - 8, t('paused'), 14);
+  DrawTextCentered(GameAreaWidth / 2, curH / 2, t('paused'), 14,
+                   Math.round(16 * uiScale));
 }
 
 /* ================================================================ */
@@ -526,42 +585,51 @@ function renderPlayerSelection() {
   var sel = typeof getPlayerSelectionChoice === 'function'
             ? getPlayerSelectionChoice() : 1;
 
+  /* Shared layout (input.js) — scaled with the window and centered */
+  var L = getPlayerSelectionLayout();
+  var S = L.s;
+
+  /* Dim the world behind the selection screen */
+  var ctx = overlayCtx;
+  if (ctx) {
+    ctx.globalAlpha = 0.55;
+    DrawFilledRectUnclipped(0, 0, curW, curH, 0);
+    ctx.globalAlpha = 1.0;
+  }
+
   /* Title */
-  DrawText(180, 60, t('title'), 15);
+  DrawTextCentered(L.cx, L.titleY, t('title'), 15, Math.round(20 * S));
 
   /* Prompt */
-  DrawText(130, 100, t('choose_group'), 14);
+  DrawTextCentered(L.cx, L.promptY, t('choose_group'), 11, Math.round(14 * S));
 
   /* Instructions */
-  DrawText(120, 130, t('select_hint'), 7);
+  DrawTextCentered(L.cx, L.hintY, t('select_hint'), 8, Math.round(11 * S));
 
-  /* Faction list with colors */
-  /* Faction 1: red (12) */
-  if (sel === 1)
-    DrawText(220, 180, t('arrow') + ' ' + t('group1'), 12);
-  else
-    DrawText(220, 180, '   ' + t('group1'), 12);
+  /* Faction list with colors and framed rows */
+  var groupKeys = ['group1', 'group2', 'group3'];
+  var groupColors = [12, 10, 14];
+  var rowFont = Math.round(15 * S);
 
-  /* Faction 2: green (10) */
-  if (sel === 2)
-    DrawText(220, 210, t('arrow') + ' ' + t('group2'), 10);
-  else
-    DrawText(220, 210, '   ' + t('group2'), 10);
+  for (var i = 0; i < 3; i++) {
+    var r = L.rows[i];
+    var selected = (sel === i + 1);
 
-  /* Faction 3: yellow (14) */
-  if (sel === 3)
-    DrawText(220, 240, t('arrow') + ' ' + t('group3'), 14);
-  else
-    DrawText(220, 240, '   ' + t('group3'), 14);
+    DrawFilledRectUnclipped(r.x, r.y, r.w, r.h, 8);
+    DrawRect(r.x, r.y, r.w, r.h, selected ? groupColors[i] : 7);
+
+    var label = t(groupKeys[i]);
+    var text = (selected ? t('arrow') + ' ' : '') + label;
+    var tw = MeasureTextPx(text, rowFont);
+    var tx = Math.round(r.x + (r.w - tw) / 2);
+    var ty = Math.round(r.y + (r.h - rowFont * 0.8) / 2);
+    DrawText(tx, ty, text, groupColors[i], rowFont);
+  }
 
   /* Language toggle button — show current language */
-  var langBtn = getLang() === 'de' ? 'DE' : 'EN';
-  DrawRect(260, 280, 60, 18, 7);
-  DrawText(270, 284, langBtn, 14);
-
-  /* Help link button */
-  DrawRect(190, 280, 60, 18, 11);
-  DrawText(200, 284, t('help_link'), 11);
+  var btnFont = Math.round(12 * S);
+  drawTextButton(L.help, t('help_link'), 11, btnFont);
+  drawTextButton(L.lang, getLang() === 'de' ? 'DE' : 'EN', 15, btnFont);
 }
 
 /* ================================================================ */
@@ -572,13 +640,15 @@ function renderSaveLoadFlash() {
   if (!ctx) return;
 
   var cx = Math.trunc(GameAreaWidth / 2);
+  var fontPx = Math.round(14 * uiScale);
+  var y = Math.round(40 * uiScale);
 
   if (saveFlashTick > 0) {
     saveFlashTick--;
     /* Pulsating opacity */
     var alpha = 0.5 + 0.5 * Math.sin(saveFlashTick * 0.3);
     ctx.globalAlpha = alpha;
-    DrawText(cx, 60, t('saved'), 10);
+    DrawTextCentered(cx, y, t('saved'), 10, fontPx);
     ctx.globalAlpha = 1;
   }
 
@@ -586,7 +656,7 @@ function renderSaveLoadFlash() {
     loadFlashTick--;
     var alpha = 0.5 + 0.5 * Math.sin(loadFlashTick * 0.3);
     ctx.globalAlpha = alpha;
-    DrawText(cx, 60, t('loaded'), 10);
+    DrawTextCentered(cx, y, t('loaded'), 10, fontPx);
     ctx.globalAlpha = 1;
   }
 }

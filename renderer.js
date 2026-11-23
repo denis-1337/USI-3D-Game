@@ -307,12 +307,31 @@ function DrawFilledRectUnclipped(x, y, w, h, colorIdx) {
 /* ================================================================ */
 /* DrawText — on overlay canvas                                     */
 /* ================================================================ */
-function DrawText(x, y, text, colorIdx) {
+function DrawText(x, y, text, colorIdx, fontPx) {
   if (!overlayCtx || !text || colorIdx === 0) return;
-  overlayCtx.font = '10px monospace';
+  var px = fontPx || 10;
+  overlayCtx.font = px + 'px monospace';
   overlayCtx.fillStyle = vgaColor(colorIdx);
   overlayCtx.textBaseline = 'top';
-  overlayCtx.fillText(text, x, y - 3);
+  overlayCtx.fillText(text, x, y - Math.round(px * 0.3));
+}
+
+/* ================================================================ */
+/* MeasureTextPx — measure a string with a given font size          */
+/* ================================================================ */
+function MeasureTextPx(text, fontPx) {
+  if (!overlayCtx) return text.length * (fontPx || 10) * 0.6;
+  overlayCtx.font = (fontPx || 10) + 'px monospace';
+  return overlayCtx.measureText(text).width;
+}
+
+/* ================================================================ */
+/* DrawTextCentered — draw text centered horizontally around cx     */
+/* ================================================================ */
+function DrawTextCentered(cx, y, text, colorIdx, fontPx) {
+  if (!overlayCtx || !text) return;
+  var w = MeasureTextPx(text, fontPx);
+  DrawText(Math.round(cx - w / 2), y, text, colorIdx, fontPx);
 }
 
 /* ================================================================ */

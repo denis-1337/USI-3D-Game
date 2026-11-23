@@ -249,11 +249,12 @@ function _gameLoopBody() {
         /* ---- WIN/LOSE OVERLAY (2D) ---- */
         if (gameWon || gameLost) {
           var cx = Math.trunc(GameAreaWidth / 2);
-          var cy = 60;
+          var cy = Math.round(40 * uiScale);
+          var fontPx = Math.round(20 * uiScale);
           if (gameWon) {
-            DrawText(cx, cy, t('won'), 11);
+            DrawTextCentered(cx, cy, t('won'), 11, fontPx);
           } else {
-            DrawText(cx, cy, t('lost'), 4);
+            DrawTextCentered(cx, cy, t('lost'), 4, fontPx);
           }
         }
 

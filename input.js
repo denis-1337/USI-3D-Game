@@ -242,80 +242,79 @@ function handlePlanetMenuKey(key) {
 /* ================================================================ */
 function handlePlanetMenuClick(mx, my) {
   if (!pview || pnr < 1 || pnr > maxpl) return;
-  var k = planets[pnr - 1].k[snr - 1];
+  var p = planets[pnr - 1];
+  var k = p.k[snr - 1];
 
-  var menuX = Math.floor((GameAreaWidth - 500) / 2);
-  var menuY = Math.floor((GameAreaHeight - 340) / 2);
-  if (menuX < 0) menuX = 0;
-  if (menuY < 0) menuY = 0;
-
-  /* 1. "nächstes Level" */
-  if (k.a < 8 && inRect(mx, my, menuX + 115, menuY + 65, 120, 15)) {
-    k.auf = 1; k.x = 0;
-    k.max = 2 * nlevel - Math.trunc(nlevel * k.f / 100);
-  }
-  /* 2. "Soldaten" */
-  if (k.a * 200 > k.inf && inRect(mx, my, menuX + 115, menuY + 85, 120, 15)) {
-    k.auf = 2; k.x = 0; k.max = soldaten;
-    if (k.m < 1) k.m = 1;
-  }
-  /* 3. "Jäger" */
-  if (k.a > 1 && factionStats[snr - 1].an < factionStats[snr - 1].max && inRect(mx, my, menuX + 115, menuY + 105, 120, 15)) {
-    k.auf = 3; k.x = 0; k.max = jager;
-    if (k.m < 1) k.m = 1;
-  }
-  /* 4. "Transporter" */
-  if (k.inf >= 100 && k.a > 2 && factionStats[snr - 1].an < factionStats[snr - 1].max && inRect(mx, my, menuX + 115, menuY + 125, 120, 15)) {
-    k.auf = 4; k.x = 0; k.max = transporter;
-    if (k.m < 1) k.m = 1;
-  }
-  /* 5. "Adv. Jäger" */
-  if (k.a > 3 && factionStats[snr - 1].an < factionStats[snr - 1].max && inRect(mx, my, menuX + 265, menuY + 65, 120, 15)) {
-    k.auf = 5; k.x = 0; k.max = advjager;
-    if (k.m < 1) k.m = 1;
-  }
-  /* 6. "Forts" */
-  if (k.a > 4 && k.a > k.def && inRect(mx, my, menuX + 265, menuY + 85, 120, 15)) {
-    k.auf = 6; k.x = 0; k.max = forts;
-    if (k.m < 1) k.m = 1;
-  }
-  /* 7. "Bomber" */
-  if (k.a > 5 && factionStats[snr - 1].an < factionStats[snr - 1].max && inRect(mx, my, menuX + 265, menuY + 105, 120, 15)) {
-    k.auf = 7; k.x = 0; k.max = bomber;
-    if (k.m < 1) k.m = 1;
-  }
-  /* 8. "Nichts" */
-  if (inRect(mx, my, menuX + 265, menuY + 125, 120, 15)) {
-    k.auf = 0; k.x = 0;
+  /* Build/order buttons — same hit boxes as pmenu() draws */
+  var buttons = getPlanetMenuButtons(p);
+  for (var i = 0; i < buttons.length; i++) {
+    var b = buttons[i];
+    if (!inRect(mx, my, b.rect.x, b.rect.y, b.rect.w, b.rect.h)) continue;
+    switch (b.id) {
+      case 1:
+        k.auf = 1; k.x = 0;
+        k.max = 2 * nlevel - Math.trunc(nlevel * k.f / 100);
+        break;
+      case 2:
+        k.auf = 2; k.x = 0; k.max = soldaten;
+        if (k.m < 1) k.m = 1;
+        break;
+      case 3:
+        k.auf = 3; k.x = 0; k.max = jager;
+        if (k.m < 1) k.m = 1;
+        break;
+      case 4:
+        k.auf = 4; k.x = 0; k.max = transporter;
+        if (k.m < 1) k.m = 1;
+        break;
+      case 5:
+        k.auf = 5; k.x = 0; k.max = advjager;
+        if (k.m < 1) k.m = 1;
+        break;
+      case 6:
+        k.auf = 6; k.x = 0; k.max = forts;
+        if (k.m < 1) k.m = 1;
+        break;
+      case 7:
+        k.auf = 7; k.x = 0; k.max = bomber;
+        if (k.m < 1) k.m = 1;
+        break;
+      case 8:
+        k.auf = 0; k.x = 0;
+        break;
+    }
+    break;  /* first hit wins */
   }
 
-  /* Anzahl: +1 */
-  if (inRect(mx, my, menuX + 190, menuY + 162, 24, 14)) {
-    if (k.m < 255) k.m++;
-  }
-  /* Anzahl: -1 */
-  if (inRect(mx, my, menuX + 190, menuY + 178, 24, 14)) {
-    if (k.m > 0) k.m--;
-  }
-  /* Anzahl: +10 */
-  if (inRect(mx, my, menuX + 218, menuY + 162, 24, 14)) {
-    if (k.m + 10 <= 255) k.m = k.m + 10;
-    else k.m = 255;
-  }
-  /* Anzahl: -10 */
-  if (inRect(mx, my, menuX + 218, menuY + 178, 24, 14)) {
-    if (k.m - 10 > 0) k.m = k.m - 10;
-    else k.m = 1;
+  /* Quantity +/- buttons */
+  var qty = getPlanetMenuQuantityButtons(p);
+  for (var i = 0; i < qty.length; i++) {
+    var q = qty[i];
+    if (!inRect(mx, my, q.rect.x, q.rect.y, q.rect.w, q.rect.h)) continue;
+    if (q.id === 1) {
+      if (k.m < 255) k.m++;
+    } else if (q.id === -1) {
+      if (k.m > 0) k.m--;
+    } else if (q.id === 10) {
+      if (k.m + 10 <= 255) k.m = k.m + 10;
+      else k.m = 255;
+    } else if (q.id === -10) {
+      if (k.m - 10 > 0) k.m = k.m - 10;
+      else k.m = 1;
+    }
+    break;
   }
 
   /* Verhalten: attack/defend toggle */
-  if (inRect(mx, my, menuX + 215, menuY + 240, 120, 15)) {
+  var beh = getPlanetMenuBehaviorRect(p);
+  if (inRect(mx, my, beh.x, beh.y, beh.w, beh.h)) {
     if (k.war === 1) k.war = 0;
     else k.war = 1;
   }
 
-  /* zurück: exit planet view */
-  if (inRect(mx, my, menuX + 385, menuY + 300, 110, 30)) {
+  /* zurueck: exit planet view */
+  var back = getPlanetMenuBackRect(p);
+  if (inRect(mx, my, back.x, back.y, back.w, back.h)) {
     pview = false;
     befehl = false;
     rahmen = false;
@@ -327,25 +326,64 @@ function handlePlanetMenuClick(mx, my) {
 /* ================================================================ */
 function CalcLayout() {
   var REF_W = 640, REF_H = 480;
-  var REF_PANEL_W = 140, REF_GAME_AREA_W = 500;
+  var REF_PANEL_W = 140;
 
-  if (curW === REF_W && curH === REF_H) {
-    GameAreaWidth = REF_GAME_AREA_W;
-    GameAreaHeight = REF_H;
-    return;
-  }
+  /* Scale the whole retro UI with the window: 1.0 at the original
+   * 640x480 size, capped so text does not get gigantic on 4K screens. */
+  uiScale = Math.min(curW / REF_W, curH / REF_H);
+  if (uiScale < 1) uiScale = 1;
+  if (uiScale > 3.2) uiScale = 3.2;
 
-  var panelW;
-  if (curW > REF_W)
-    panelW = REF_PANEL_W + Math.min(curW - REF_W, 100);
-  else
-    panelW = REF_PANEL_W;
+  /* Scale the side panel with the UI so labels and buttons fit */
+  var panelW = Math.round(REF_PANEL_W * uiScale);
+  if (panelW > curW - 300) panelW = Math.max(40, curW - 300);
 
   GameAreaWidth = curW - panelW - 5;
   if (GameAreaWidth < 300) GameAreaWidth = 300;
 
   GameAreaHeight = curH;
   if (GameAreaHeight < 349) GameAreaHeight = 349;
+}
+
+/* ================================================================ */
+/* Helper: getPlayerSelectionLayout — shared by ui.js renderer       */
+/* and the mouse handler so draw/hit boxes match.                   */
+/* ================================================================ */
+function getPlayerSelectionLayout() {
+  var s = uiScale || 1;
+  var cx = Math.round(GameAreaWidth / 2);
+  var titleY = Math.round(GameAreaHeight * 0.16);
+  var promptY = titleY + Math.round(48 * s);
+  var hintY = promptY + Math.round(34 * s);
+  var rowH = Math.round(34 * s);
+  var gap = Math.round(10 * s);
+  var rowW = Math.min(Math.round(420 * s), GameAreaWidth - 40);
+  var rowsTotal = 3 * rowH + 2 * gap;
+  var rowsTop = hintY + Math.round(46 * s);
+  var minBottom = Math.round(110 * s);
+  if (rowsTop + rowsTotal > GameAreaHeight - minBottom)
+    rowsTop = GameAreaHeight - minBottom - rowsTotal;
+
+  var rows = [];
+  for (var i = 0; i < 3; i++) {
+    rows.push({
+      x: Math.round(cx - rowW / 2),
+      y: rowsTop + i * (rowH + gap),
+      w: rowW,
+      h: rowH
+    });
+  }
+
+  var btnW = Math.round(90 * s);
+  var btnH = Math.round(30 * s);
+  var btnY = Math.round(GameAreaHeight - 46 * s);
+  var help = { x: cx - btnW - Math.round(8 * s), y: btnY, w: btnW, h: btnH };
+  var lang = { x: cx + Math.round(8 * s), y: btnY, w: btnW, h: btnH };
+
+  return {
+    s: s, cx: cx, titleY: titleY, promptY: promptY, hintY: hintY,
+    rows: rows, help: help, lang: lang
+  };
 }
 
 /* ================================================================ */
@@ -472,22 +510,24 @@ function initInput(canvasEl) {
 
       /* Player selection screen clicks */
       if (_playerSelectionActive) {
-        var selY = 175;
-        for (var i = 1; i <= 3; i++) {
-          if (mouseX >= 150 && mouseX <= 450 && mouseY >= selY + (i-1)*30 && mouseY <= selY + (i-1)*30 + 28) {
-            _playerSelectionChoice = i;
+        var L = getPlayerSelectionLayout();
+        for (var i = 0; i < L.rows.length; i++) {
+          var r = L.rows[i];
+          if (inRect(mouseX, mouseY, r.x, r.y, r.w, r.h)) {
+            _playerSelectionChoice = i + 1;
             _playerSelectionActive = false;
-            snr = i;
+            snr = i + 1;
+            return;
           }
         }
         /* Language toggle button */
-        if (mouseX >= 260 && mouseX <= 320 && mouseY >= 280 && mouseY <= 298) {
+        if (inRect(mouseX, mouseY, L.lang.x, L.lang.y, L.lang.w, L.lang.h)) {
           if (getLang() === 'de') setLang('en');
           else setLang('de');
           return;
         }
         /* Help link button */
-        if (mouseX >= 190 && mouseX <= 250 && mouseY >= 280 && mouseY <= 298) {
+        if (inRect(mouseX, mouseY, L.help.x, L.help.y, L.help.w, L.help.h)) {
           window.open('help.html', '_blank');
           return;
         }
@@ -502,12 +542,12 @@ function initInput(canvasEl) {
 
       /* Save/Load buttons — positions match renderSaveLoadButtons() */
       var panelX = GameAreaWidth + 5;
-      var btnStartY = mmY + mmSize + 10 + 42;  /* matches ui.js: contentY + 42 */
-      if (inRect(mouseX, mouseY, panelX + 10, btnStartY, 80, 20)) {
+      var btns = getSaveLoadButtons(panelX, getPanelContentY() + uiPx(40));
+      if (inRect(mouseX, mouseY, btns.save.x, btns.save.y, btns.save.w, btns.save.h)) {
         speichernladen(1);
         return;
       }
-      if (inRect(mouseX, mouseY, panelX + 10, btnStartY + 30, 80, 20)) {
+      if (inRect(mouseX, mouseY, btns.load.x, btns.load.y, btns.load.w, btns.load.h)) {
         speichernladen(2);
         return;
       }
@@ -520,15 +560,10 @@ function initInput(canvasEl) {
       }
 
       /* Camera angle slider click */
-      var panelW = curW - panelX;
-      var sliderContentY = mmY + mmSize + 10;  /* matches ui.js: contentY */
-      var sliderX = panelX + 5;
-      var sliderY = sliderContentY + 10;        /* matches ui.js: startY + 10 */
-      var sliderW = panelW - 10;
-      var sliderH = 8;
-      if (inRect(mouseX, mouseY, sliderX, sliderY, sliderW, sliderH)) {
+      var slider = getCameraSliderRect(panelX, getPanelContentY());
+      if (inRect(mouseX, mouseY, slider.x, slider.y, slider.w, slider.h)) {
         /* Inverted: left = 90° (top-down), right = 0° (perspective) */
-        var sliderVal = 1 - (mouseX - sliderX) / sliderW;
+        var sliderVal = 1 - (mouseX - slider.x) / slider.w;
         if (sliderVal < 0) sliderVal = 0;
         if (sliderVal > 1) sliderVal = 1;
         cameraTiltAngle = sliderVal * 90;
@@ -657,15 +692,11 @@ function initInput(canvasEl) {
     /* Slider drag */
     if (isMouseDown) {
       var panelX = GameAreaWidth + 5;
-      var panelW = curW - panelX;
-      var contentY = mmY + mmSize + 10;
-      var sliderX = panelX + 5;
-      var sliderY = contentY + 10;
-      var sliderW = panelW - 10;
-      var sliderH = 8;
-      if (inRect(mouseX, mouseY, sliderX, sliderY - 4, sliderW, sliderH + 8)) {
+      var slider = getCameraSliderRect(panelX, getPanelContentY());
+      if (inRect(mouseX, mouseY, slider.x, slider.y - uiPx(4),
+                 slider.w, slider.h + uiPx(8))) {
         /* Inverted: left = 90° (top-down), right = 0° (perspective) */
-        var sliderVal = 1 - (mouseX - sliderX) / sliderW;
+        var sliderVal = 1 - (mouseX - slider.x) / slider.w;
         if (sliderVal < 0) sliderVal = 0;
         if (sliderVal > 1) sliderVal = 1;
         cameraTiltAngle = sliderVal * 90;
