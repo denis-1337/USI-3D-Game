@@ -75,6 +75,19 @@ function getPanelLayout() {
 }
 
 /* ================================================================ */
+/* Helper: camera pan limits in the 3D convention                    */
+/* camera target = (screen center - bx/by) / zoomScale               */
+/* ================================================================ */
+function getCameraPanBounds() {
+  return {
+    bxMin: GameAreaWidth - seite * zoomScale,
+    bxMax: 0,
+    byMin: GameAreaHeight - seite * zoomScale,
+    byMax: 0
+  };
+}
+
+/* ================================================================ */
 /* Helper: recompute befehl (true if any ship is selected)           */
 /* ================================================================ */
 function recomputeBefehl() {
@@ -494,6 +507,11 @@ function initInput(canvasEl) {
     _keyDown[e.code] = false;
   });
 
+  /* Clear held keys when the window loses focus (prevents stuck WASD panning) */
+  window.addEventListener('blur', function() {
+    _keyDown = {};
+  });
+
   /* --- Mouse events --- */
   attachTarget.addEventListener('mousedown', function(e) {
     e.preventDefault();
@@ -815,30 +833,38 @@ function processInput() {
     by = -Math.trunc((_mmy - mmY) * seite / mmSize * zoomScale) + Math.trunc(GameAreaHeight / 2);
   }
 
+  /* --- WASD camera pan --- */
+  var panBounds = getCameraPanBounds();
+  var canPanX = GameAreaWidth / zoomScale < seite;
+  var canPanY = GameAreaHeight / zoomScale < seite;
+
+  if (canPanX) {
+    if (_keyDown['KeyA'] && bx < panBounds.bxMax) bx += 30;
+    if (_keyDown['KeyD'] && bx > panBounds.bxMin) bx -= 30;
+  }
+  if (canPanY) {
+    if (_keyDown['KeyW'] && by < panBounds.byMax) by += 30;
+    if (_keyDown['KeyS'] && by > panBounds.byMin) by -= 30;
+  }
+
   /* --- Edge scrolling at the game-area borders (not the side panel) --- */
   if (mouseX >= 0 && mouseY >= 0 &&
       mouseX <= GameAreaWidth && mouseY <= GameAreaHeight &&
       !(_isMinimapDragging && isMouseDown)) {
-    /* Keep the camera view inside the world bounds.  In 3D mode the
-     * camera target is (-bx + center) / zoomScale, so the limits are
-     * the game-area size minus the zoomed world size. */
-    var bxMin = GameAreaWidth - seite * zoomScale;
-    var byMin = GameAreaHeight - seite * zoomScale;
-
     /* Only pan if the zoomed viewport is smaller than the world. */
-    if (GameAreaWidth / zoomScale < seite) {
-      if (mouseX < 3 && bx < 0) {
+    if (canPanX) {
+      if (mouseX < 3 && bx < panBounds.bxMax) {
         bx += 30;
       }
-      if (mouseX > GameAreaWidth - 3 && bx > bxMin) {
+      if (mouseX > GameAreaWidth - 3 && bx > panBounds.bxMin) {
         bx -= 30;
       }
     }
-    if (GameAreaHeight / zoomScale < seite) {
-      if (mouseY < 3 && by < 0) {
+    if (canPanY) {
+      if (mouseY < 3 && by < panBounds.byMax) {
         by += 30;
       }
-      if (mouseY > GameAreaHeight - 3 && by > byMin) {
+      if (mouseY > GameAreaHeight - 3 && by > panBounds.byMin) {
         by -= 30;
       }
     }
