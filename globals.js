@@ -54,7 +54,7 @@ var menuY = 0;
 /* ===== Player faction ===== */
 var snr = 1;  // player faction 1/2/3
 
-/* ===== Zoom (6 discrete levels; default 2 = 1.0) ===== */
+/* ===== Zoom (6 discrete levels; gameplay starts at level 4 = 2.0) ===== */
 var zoomLevels = [0.6, 0.8, 1.0, 1.4, 2.0, 3.0];
 var zoomLevel  = 2;
 var zoomScale  = 1.0;

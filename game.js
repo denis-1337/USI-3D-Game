@@ -65,9 +65,9 @@ function init() {
   by = 0;
   prevLeftDown = false;
 
-  /* Zoom: default 1:1 */
-  zoomLevel = 2;
-  zoomScale = 1.0;
+  /* Zoom: start two steps closer than the old 1:1 default */
+  zoomLevel = 4;
+  zoomScale = zoomLevels[zoomLevel];
 
   /* Set max ship counts per faction */
   factionStats[0].max = 85;
@@ -145,8 +145,21 @@ function runPlayerSelectionLoop() {
       if (cnt > 0) {
         cx = cx / cnt;
         cy = cy / cnt;
-        by = Math.trunc(GameAreaHeight / 2.0 - cy);
-        bx = Math.trunc(GameAreaWidth / 2.0 - cx);
+        by = Math.trunc(GameAreaHeight / 2.0 - cy * zoomScale);
+        bx = Math.trunc(GameAreaWidth / 2.0 - cx * zoomScale);
+
+        /* Keep the initial view inside the world bounds (3D convention:
+         * camera target = (-bx + center) / zoomScale). */
+        var bxMin = GameAreaWidth - seite * zoomScale;
+        var byMin = GameAreaHeight - seite * zoomScale;
+        if (GameAreaWidth / zoomScale < seite) {
+          if (bx > 0) bx = 0;
+          else if (bx < bxMin) bx = Math.trunc(bxMin);
+        }
+        if (GameAreaHeight / zoomScale < seite) {
+          if (by > 0) by = 0;
+          else if (by < byMin) by = Math.trunc(byMin);
+        }
       }
 
       mouseX = -1;

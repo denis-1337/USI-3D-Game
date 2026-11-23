@@ -815,22 +815,32 @@ function processInput() {
     by = -Math.trunc((_mmy - mmY) * seite / mmSize * zoomScale) + Math.trunc(GameAreaHeight / 2);
   }
 
-  /* --- Edge scrolling at screen borders (only if not dragging minimap) --- */
-  if (mouseX >= 0 && mouseY >= 0 && !(_isMinimapDragging && isMouseDown)) {
-    if (mouseX < 3 && bx < 0) {
-      bx += 30;
+  /* --- Edge scrolling at the game-area borders (not the side panel) --- */
+  if (mouseX >= 0 && mouseY >= 0 &&
+      mouseX <= GameAreaWidth && mouseY <= GameAreaHeight &&
+      !(_isMinimapDragging && isMouseDown)) {
+    /* Keep the camera view inside the world bounds.  In 3D mode the
+     * camera target is (-bx + center) / zoomScale, so the limits are
+     * the game-area size minus the zoomed world size. */
+    var bxMin = GameAreaWidth - seite * zoomScale;
+    var byMin = GameAreaHeight - seite * zoomScale;
+
+    /* Only pan if the zoomed viewport is smaller than the world. */
+    if (GameAreaWidth / zoomScale < seite) {
+      if (mouseX < 3 && bx < 0) {
+        bx += 30;
+      }
+      if (mouseX > GameAreaWidth - 3 && bx > bxMin) {
+        bx -= 30;
+      }
     }
-    if (mouseX > curW - 3 && bx > -seite + GameAreaWidth) {
-      bx -= 30;
-    }
-    if (mouseY < 3 && by < 0) {
-      by += 30;
-    }
-    /* Bottom limit based on zoom — match the camera clamping bounds */
-    var halfH = GameAreaHeight / 2;
-    var bottomLimit = Math.trunc(halfH * (1 + 1 / zoomScale) - seite);
-    if (mouseY > curH - 3 && by > bottomLimit) {
-      by -= 30;
+    if (GameAreaHeight / zoomScale < seite) {
+      if (mouseY < 3 && by < 0) {
+        by += 30;
+      }
+      if (mouseY > GameAreaHeight - 3 && by > byMin) {
+        by -= 30;
+      }
     }
   }
 
