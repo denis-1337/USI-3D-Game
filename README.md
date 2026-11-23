@@ -2,6 +2,14 @@
 
 A browser-based space strategy game with 3D graphics (Three.js) that runs completely offline with no server required.
 
+## ▶ Start here
+
+**Play directly in your browser — nothing to download:**
+
+### **[https://denis-1337.github.io/USI-3D-Game/](https://denis-1337.github.io/USI-3D-Game/)**
+
+*(Player guide: [help.html](https://denis-1337.github.io/USI-3D-Game/help.html))*
+
 ![Screenshot](screenshot.png)
 
 ## Credits
