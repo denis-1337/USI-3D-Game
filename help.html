@@ -360,7 +360,8 @@
   <tr><td>Rechtsklick ohne markierte Schiffe</td><td>Auswahl aufheben</td></tr>
   <tr><td>Klick auf Mini-Map</td><td>Kamera zum gewählten Bereich bewegen</td></tr>
   <tr><td>Mausrad</td><td>Kamera um den Cursor zoomen; über der Mini-Map wird zur Bildmitte gezoomt</td></tr>
-  <tr><td>Maus am Spielfeldrand</td><td>Screen-Edge-Scrolling: Kamera in die Richtung des Rands verschieben</td></tr>
+  <tr><td>Maus am Bildschirmrand</td><td>Screen-Edge-Scrolling: Kamera in die Richtung des Rands verschieben</td></tr>
+  <tr><td>DE/EN, HILFE unten rechts</td><td>Sprache umschalten; HILFE &ouml;ffnet diese Anleitung in einem neuen Tab</td></tr>
 </table>
 
 <h3>Tastatur</h3>
@@ -679,7 +680,8 @@
   <tr><td>Right click without selected ships</td><td>Clear the selection</td></tr>
   <tr><td>Click on the mini-map</td><td>Move the camera to the chosen area</td></tr>
   <tr><td>Mouse wheel</td><td>Zoom the camera toward the cursor; over the mini-map it zooms to the center of the view</td></tr>
-  <tr><td>Mouse at the game-area edge</td><td>Screen-edge scrolling: pan the camera in that direction</td></tr>
+  <tr><td>Mouse at the screen edge</td><td>Screen-edge scrolling: pan the camera in that direction</td></tr>
+  <tr><td>DE/EN, HELP bottom right</td><td>Switch the language; HELP opens this guide in a new tab</td></tr>
 </table>
 
 <h3>Keyboard</h3>
@@ -939,10 +941,40 @@
     en: 'USI - Star Fleet | Player Guide'
   };
 
-  /* Shared preference with the game (language.js uses the same key) */
-  var saved = null;
-  try { saved = localStorage.getItem('usi-lang'); } catch (e) { }
-  var current = (saved === 'en' || saved === 'de') ? saved : 'de';
+  /* Shared preference with the game, stored in the usi-lang cookie */
+  function getLangCookie() {
+    try {
+      var cookies = document.cookie ? document.cookie.split(';') : [];
+      for (var i = 0; i < cookies.length; i++) {
+        var c = cookies[i].trim();
+        var eq = c.indexOf('=');
+        if (eq < 0) continue;
+        if (c.substring(0, eq) !== 'usi-lang') continue;
+        var val = decodeURIComponent(c.substring(eq + 1));
+        if (val === 'en' || val === 'de') return val;
+      }
+    } catch (e) { /* cookies may be blocked */ }
+    return null;
+  }
+  function setLangCookie(lang) {
+    try {
+      var expires = new Date(Date.now() + 31536000e3).toUTCString();
+      document.cookie = 'usi-lang=' + encodeURIComponent(lang) +
+        '; expires=' + expires + '; path=/; SameSite=Lax';
+    } catch (e) { /* cookies may be blocked */ }
+  }
+
+  var saved = getLangCookie();
+  if (saved !== 'en' && saved !== 'de') {
+    try {
+      var legacy = localStorage.getItem('usi-lang');
+      if (legacy === 'en' || legacy === 'de') {
+        setLangCookie(legacy);
+        saved = legacy;
+      }
+    } catch (e) { }
+  }
+  var current = (saved === 'en' || saved === 'de') ? saved : 'en';
 
   function apply(lang) {
     if (lang !== 'de' && lang !== 'en') return;
@@ -956,6 +988,7 @@
       btn.classList.toggle('active', active);
       btn.setAttribute('aria-selected', active ? 'true' : 'false');
     });
+    setLangCookie(lang);
     try { localStorage.setItem('usi-lang', lang); } catch (e) { }
   }
 

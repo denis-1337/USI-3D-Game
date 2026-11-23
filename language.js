@@ -170,13 +170,45 @@ var LANG = {
   }
 };
 
-/* Current language — load from localStorage, default 'de' */
-var currentLang = (function() {
+/* Cookie helpers for the shared DE/EN preference */
+function getLangCookie() {
   try {
-    var saved = localStorage.getItem('usi-lang');
-    if (saved === 'en' || saved === 'de') return saved;
+    var cookies = document.cookie ? document.cookie.split(';') : [];
+    for (var i = 0; i < cookies.length; i++) {
+      var c = cookies[i].trim();
+      var eq = c.indexOf('=');
+      if (eq < 0) continue;
+      if (c.substring(0, eq) !== 'usi-lang') continue;
+      var val = decodeURIComponent(c.substring(eq + 1));
+      if (val === 'en' || val === 'de') return val;
+    }
+  } catch (e) { /* cookies may be blocked */ }
+  return null;
+}
+
+function setLangCookie(lang) {
+  try {
+    var expires = new Date(Date.now() + 31536000e3).toUTCString();
+    document.cookie = 'usi-lang=' + encodeURIComponent(lang) +
+      '; expires=' + expires + '; path=/; SameSite=Lax';
+  } catch (e) { /* cookies may be blocked */ }
+}
+
+/* Current language — cookie first (default 'en' on first visit).
+ * Migrate an older localStorage preference once, if present. */
+var currentLang = (function() {
+  var saved = getLangCookie();
+  if (saved === 'en' || saved === 'de') return saved;
+  try {
+    var legacy = localStorage.getItem('usi-lang');
+    if (legacy === 'en' || legacy === 'de') {
+      setLangCookie(legacy);
+      return legacy;
+    }
   } catch (e) { /* localStorage may be blocked */ }
-  return 'de';
+  /* First visit: English is the default and becomes the stored preference */
+  setLangCookie('en');
+  return 'en';
 })();
 
 /* t(key) — translate a key, with fallback chain */
@@ -186,10 +218,11 @@ function t(key) {
   return key;
 }
 
-/* setLang(lang) — switch language, save to localStorage, dispatch event */
+/* setLang(lang) — switch language, save to cookie (and localStorage fallback) */
 function setLang(lang) {
   if (lang !== 'de' && lang !== 'en') return;
   currentLang = lang;
+  setLangCookie(lang);
   try { localStorage.setItem('usi-lang', lang); } catch (e) { }
   window.dispatchEvent(new CustomEvent('langchange'));
 }

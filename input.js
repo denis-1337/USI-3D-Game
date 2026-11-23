@@ -400,6 +400,27 @@ function getPlayerSelectionLayout() {
 }
 
 /* ================================================================ */
+/* Helper: getInGameMenuLayout — bottom-right game buttons          */
+/* (DE/EN language buttons + HILFE), shared by ui.js and input.js   */
+/* ================================================================ */
+function getInGameMenuLayout() {
+  var pad = Math.max(6, Math.round(8 * uiScale));
+  var gap = Math.max(4, Math.round(6 * uiScale));
+  var btnH = Math.max(22, Math.round(28 * uiScale));
+  var deW = Math.max(36, Math.round(44 * uiScale));
+  var enW = deW;
+  var helpW = Math.max(70, Math.round(90 * uiScale));
+  var total = deW + enW + helpW + gap * 2;
+  var x = GameAreaWidth - pad - total;
+  var y = GameAreaHeight - pad - btnH;
+
+  var de = { x: x, y: y, w: deW, h: btnH };
+  var en = { x: de.x + deW + gap, y: y, w: enW, h: btnH };
+  var help = { x: en.x + enW + gap, y: y, w: helpW, h: btnH };
+  return { de: de, en: en, help: help };
+}
+
+/* ================================================================ */
 /* initInput — Set up all event listeners on the canvas              */
 /* ================================================================ */
 var canvas = null;  // canvas element reference
@@ -551,6 +572,23 @@ function initInput(canvasEl) {
           return;
         }
         return;
+      }
+
+      /* Bottom-right in-game buttons: DE / EN / HILFE */
+      if (!pview) {
+        var gm = getInGameMenuLayout();
+        if (inRect(mouseX, mouseY, gm.de.x, gm.de.y, gm.de.w, gm.de.h)) {
+          setLang('de');
+          return;
+        }
+        if (inRect(mouseX, mouseY, gm.en.x, gm.en.y, gm.en.w, gm.en.h)) {
+          setLang('en');
+          return;
+        }
+        if (inRect(mouseX, mouseY, gm.help.x, gm.help.y, gm.help.w, gm.help.h)) {
+          window.open('help.html', '_blank');
+          return;
+        }
       }
 
       /* Planet menu click handling */
@@ -847,16 +885,18 @@ function processInput() {
     if (_keyDown['KeyS'] && by > panBounds.byMin) by -= 30;
   }
 
-  /* --- Edge scrolling at the game-area borders (not the side panel) --- */
+  /* --- Edge scrolling at the browser/window borders --- */
   if (mouseX >= 0 && mouseY >= 0 &&
-      mouseX <= GameAreaWidth && mouseY <= GameAreaHeight &&
+      mouseX <= curW && mouseY <= curH &&
       !(_isMinimapDragging && isMouseDown)) {
     /* Only pan if the zoomed viewport is smaller than the world. */
     if (canPanX) {
       if (mouseX < 3 && bx < panBounds.bxMax) {
         bx += 30;
       }
-      if (mouseX > GameAreaWidth - 3 && bx > panBounds.bxMin) {
+      /* The right edge is the browser window edge, not the side-panel
+       * border — the mouse only has to touch the right screen edge. */
+      if (mouseX > curW - 3 && bx > panBounds.bxMin) {
         bx -= 30;
       }
     }
@@ -864,7 +904,7 @@ function processInput() {
       if (mouseY < 3 && by < panBounds.byMax) {
         by += 30;
       }
-      if (mouseY > GameAreaHeight - 3 && by > panBounds.byMin) {
+      if (mouseY > curH - 3 && by > panBounds.byMin) {
         by -= 30;
       }
     }
