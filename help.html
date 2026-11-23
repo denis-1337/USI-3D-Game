@@ -95,6 +95,37 @@
       border-color: rgba(255,170,0,0.3);
     }
 
+    /* Language tabs */
+    .lang-tabs {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .lang-tabs button {
+      background: transparent;
+      color: #777;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      padding: 6px 18px;
+      font-size: 0.85em;
+      font-family: inherit;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .lang-tabs button:hover {
+      color: #FFAA00;
+      border-color: rgba(255,170,0,0.3);
+    }
+    .lang-tabs button.active {
+      color: #FFAA00;
+      border-color: rgba(255,170,0,0.4);
+      background: rgba(255,170,0,0.08);
+    }
+
+    .lang-section[hidden] { display: none; }
+
     /* Faction colors */
     .f1 { color: #FF5555; }
     .f2 { color: #55FF55; }
@@ -217,6 +248,14 @@
 </head>
 <body>
 
+<div class="lang-tabs" role="tablist" aria-label="Language">
+  <button type="button" class="active" data-lang="de" role="tab">DE</button>
+  <button type="button" data-lang="en" role="tab">EN</button>
+</div>
+
+<!-- ==================== GERMAN ==================== -->
+<section class="lang-section" id="content-de" lang="de">
+
 <a class="back-link" href="index.html">&#8592; Zum Spiel</a>
 
 <h1>USI - STAR FLEET</h1>
@@ -265,7 +304,7 @@
 <h3>Tastatur im Spiel</h3>
 <table class="controls-table">
   <tr><td>1 - 8</td><td>Schiffegruppe auswählen (alle Schiffen in dieser Gruppe werden markiert)</td></tr>
-  <tr><td>!, ", #, $, %, &, /, (</td><td>Markierte Schiffe einer Gruppe zuweisen (nur mit markierten Schiffen)</td></tr>
+  <tr><td>!, ", #, $, %, &amp;, /, (</td><td>Markierte Schiffe einer Gruppe zuweisen (nur mit markierten Schiffen)</td></tr>
   <tr><td>P</td><td>Pause an/aus</td></tr>
 </table>
 
@@ -287,7 +326,7 @@
 </table>
 
 <!-- ==================== EINHEITEN ==================== -->
-<h2 id="einheiten">Einheiten & Schiffe</h2>
+<h2 id="einheiten">Einheiten &amp; Schiffe</h2>
 <p>
   Schiffe werden auf deinen Planeten produziert und agieren automatisch im Weltall:
   Kampfschiffe jagen und beschießen feindliche Schiffe in der Nähe,
@@ -478,6 +517,317 @@
 <p style="text-align:center; color:#444; font-size:0.8em;">
   USI - Star Fleet | Ein klassisches Weltraumstrategiespiel
 </p>
+
+</section>
+
+<!-- ==================== ENGLISH ==================== -->
+<section class="lang-section" id="content-en" lang="en" hidden>
+
+<a class="back-link" href="index.html">&#8592; Back to game</a>
+
+<h1>USI - STAR FLEET</h1>
+<p class="subtitle">Player guide for new players</p>
+
+<ul class="nav-list">
+  <li><a href="#goal">Game goal</a></li>
+  <li><a href="#controls">Controls</a></li>
+  <li><a href="#units">Units</a></li>
+  <li><a href="#matchups">Matchups</a></li>
+  <li><a href="#planets">Planet building</a></li>
+  <li><a href="#tips">Tips</a></li>
+</ul>
+
+<!-- ==================== GAME GOAL ==================== -->
+<h2 id="goal">Game goal</h2>
+<p>
+  You are the leader of a faction in space. Your goal:
+  <strong>conquer all planets and destroy all enemy ships.</strong>
+</p>
+<p>
+  There are 10 planets and 3 factions. You choose a faction at the start.
+  The other two are controlled by the computer.
+</p>
+<ul>
+  <li><strong>Victory:</strong> No enemy sectors and no enemy ships left.</li>
+  <li><strong>Defeat:</strong> You own no sectors and have no ships left.</li>
+</ul>
+<p>
+  Each faction can own at most 85 ships at a time.
+</p>
+
+<!-- ==================== CONTROLS ==================== -->
+<h2 id="controls">Controls</h2>
+
+<h3>Mouse</h3>
+<table class="controls-table">
+  <tr><td>Left click + drag</td><td>Select ships (box selection)</td></tr>
+  <tr><td>Left click (without dragging)</td><td>Select a single ship or deselect</td></tr>
+  <tr><td>Right click with selected ships</td><td>Movement order: onto a planet = land there, into open space = fly there</td></tr>
+  <tr><td>Right click without selected ships</td><td>Clear selection</td></tr>
+  <tr><td>Click on mini-map</td><td>Move camera to the chosen area</td></tr>
+  <tr><td>Camera slider (right)</td><td>Change camera angle (0° = top-down, 90° = perspective)</td></tr>
+</table>
+
+<h3>Keyboard in game</h3>
+<table class="controls-table">
+  <tr><td>1 - 8</td><td>Select a ship group (all ships in that group are selected)</td></tr>
+  <tr><td>!, ", #, $, %, &amp;, /, (</td><td>Assign selected ships to a group (only with selected ships)</td></tr>
+  <tr><td>P</td><td>Pause on/off</td></tr>
+</table>
+
+<h3>Planet menu keys</h3>
+<p>
+  Open the planet menu by clicking on a planet you own.
+</p>
+<table class="controls-table">
+  <tr><td>1</td><td>Build next level (expands planet by one sector)</td></tr>
+  <tr><td>2</td><td>Produce soldiers</td></tr>
+  <tr><td>3</td><td>Build fighters (requires at least 2 sectors)</td></tr>
+  <tr><td>4</td><td>Build transporters (requires at least 3 sectors + 100 soldiers)</td></tr>
+  <tr><td>5</td><td>Advanced fighter (requires at least 4 sectors)</td></tr>
+  <tr><td>6</td><td>Build forts (requires at least 5 sectors)</td></tr>
+  <tr><td>7</td><td>Build bombers (requires at least 6 sectors)</td></tr>
+  <tr><td>8 or C</td><td>Cancel current production order</td></tr>
+  <tr><td>W or 9</td><td>Toggle infantry mode: attack → defense (only for ground troops on this planet)</td></tr>
+  <tr><td>Mouse click on "back"</td><td>Close planet menu</td></tr>
+</table>
+
+<!-- ==================== UNITS ==================== -->
+<h2 id="units">Units &amp; ships</h2>
+<p>
+  Ships are produced on your planets and act automatically in space:
+  combat ships hunt and shoot nearby enemy ships,
+  and transporters land on planets to land soldiers and conquer sectors.
+</p>
+
+<h3>Combat ships</h3>
+<p>Combat ships (types 1–9) attack enemy ships automatically when in range.</p>
+
+<div class="ship-grid">
+  <div class="ship-card">
+    <img src="ship-sprites/ship_1_f1.svg" alt="Fighter">
+    <div class="ship-name">Fighter</div>
+    <div class="ship-desc">Fast combat craft. High fire rate (10 shots/sec), but low per-shot damage and 75% hit chance. Low armor.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_2_f1.svg" alt="Advanced fighter">
+    <div class="ship-name">Adv. Fighter</div>
+    <div class="ship-desc">Balanced combat craft. Medium fire rate (7.5 shots/sec), 80% hit chance, medium armor.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_4_f1.svg" alt="Advanced fighter">
+    <div class="ship-name">Adv. Fighter</div>
+    <div class="ship-desc">Balanced combat craft. Medium fire rate (7.5 shots/sec), 80% hit chance, medium armor.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_5_f1.svg" alt="Advanced fighter">
+    <div class="ship-name">Adv. Fighter</div>
+    <div class="ship-desc">Balanced combat craft. Medium fire rate (7.5 shots/sec), 80% hit chance, medium armor.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_7_f1.svg" alt="Elite fighter">
+    <div class="ship-name">Elite Fighter</div>
+    <div class="ship-desc">Fast combat craft. High fire rate (10 shots/sec), 75% hit chance, low armor.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_8_f1.svg" alt="Elite fighter">
+    <div class="ship-name">Elite Fighter</div>
+    <div class="ship-desc">Fast combat craft. High fire rate (10 shots/sec), 75% hit chance, low armor.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_3_f1.svg" alt="Bomber">
+    <div class="ship-name">Bomber</div>
+    <div class="ship-desc">Heavy ship. Low fire rate (4.3 shots/sec), but high hit chance (90%) and high per-shot damage. Strong armor, but slow.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_6_f1.svg" alt="Bomber">
+    <div class="ship-name">Adv. Bomber</div>
+    <div class="ship-desc">Heavy ship. Low fire rate (4.3 shots/sec), high hit chance (90%) and high per-shot damage. Strong armor, slow.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_9_f1.svg" alt="Bomber">
+    <div class="ship-name">Elite Bomber</div>
+    <div class="ship-desc">Heaviest combat craft. Low fire rate (4.3 shots/sec), high hit chance (90%) and very high per-shot damage. Very strong armor, slow.</div>
+  </div>
+</div>
+
+<h3>Transporters</h3>
+<p>
+  Transporters (types 10–12) carry 100 soldiers to the target planet.
+  When they land, the soldiers are assigned to the planet and conquer sectors.
+  Transporters require 100 soldiers to build (taken from the planet).
+</p>
+
+<div class="ship-grid">
+  <div class="ship-card">
+    <img src="ship-sprites/ship_10_f1.svg" alt="Transporter">
+    <div class="ship-name">Transporter</div>
+    <div class="ship-desc">Transports 100 soldiers to the target planet and lands them there.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_11_f1.svg" alt="Advanced transporter">
+    <div class="ship-name">Adv. Transporter</div>
+    <div class="ship-desc">Transports 100 soldiers to the target planet and lands them there.</div>
+  </div>
+  <div class="ship-card">
+    <img src="ship-sprites/ship_12_f1.svg" alt="Elite transporter">
+    <div class="ship-name">Elite Transporter</div>
+    <div class="ship-desc">Transports 100 soldiers to the target planet and lands them there.</div>
+  </div>
+</div>
+
+<!-- ==================== MATCHUPS ==================== -->
+<h2 id="matchups">Matchups (rock-paper-scissors)</h2>
+<p>
+  Different ship types have advantages and disadvantages against each other:
+</p>
+
+<div class="rps-box">
+  <div class="rps-row">
+    <span class="f1">Fighter</span>
+    <span class="rps-arrow">&#8594; +40% damage against </span>
+    <span class="f3">Bomber</span>
+  </div>
+  <div class="rps-row">
+    <span class="f3">Bomber</span>
+    <span class="rps-arrow">&#8594; +50% damage against </span>
+    <span style="color:#AA5500">Transporter</span>
+  </div>
+  <div class="rps-row">
+    <span style="color:#AA5500">Transporter</span>
+    <span class="rps-arrow">&#8594; +35% damage against </span>
+    <span class="f1">Fighter</span>
+  </div>
+  <div class="rps-row" style="margin-top:12px; color:#777; font-size:0.85em;">
+    Advanced fighters: +25% against bombers, –10% against transporters
+  </div>
+</div>
+
+<p>In addition:</p>
+<ul>
+  <li>Faster ships are harder to hit (3% lower hit chance per 10 units of speed difference).</li>
+  <li>Fighters fire very fast (10 shots/sec), but with 75% hit chance.</li>
+  <li>Bombers fire slowly (4.3 shots/sec), but have 90% hit chance and high damage.</li>
+  <li>Shields regenerate slowly over time.</li>
+</ul>
+
+<!-- ==================== PLANET BUILDING ==================== -->
+<h2 id="planets">Planet building</h2>
+<p>
+  Click on a planet you own to open the <strong>planet menu</strong>.
+  There you can produce units and manage the infantry.
+</p>
+
+<h3>Production requirements</h3>
+<p>Each unit requires a certain number of occupied sectors on the planet:</p>
+
+<table class="unit-table">
+  <tr><th>Command</th><th>Requirement</th><th>Description</th></tr>
+  <tr><td>Key 1</td><td>Fewer than 8 sectors</td><td>Expand planet by one sector</td></tr>
+  <tr><td>Key 2</td><td>Infantry capacity not reached yet</td><td>Produce soldiers (max. sectors × 200)</td></tr>
+  <tr><td>Key 3</td><td>At least 2 sectors</td><td>Build fighters</td></tr>
+  <tr><td>Key 4</td><td>At least 3 sectors + 100 soldiers</td><td>Build transporters (soldiers are deducted)</td></tr>
+  <tr><td>Key 5</td><td>At least 4 sectors</td><td>Advanced fighter</td></tr>
+  <tr><td>Key 6</td><td>At least 5 sectors</td><td>Build forts (increase infantry combat strength in defense mode)</td></tr>
+  <tr><td>Key 7</td><td>At least 6 sectors</td><td>Build bombers</td></tr>
+</table>
+
+<h3>Infantry mode (key W)</h3>
+<p>
+  On every planet occupied by several factions at the same time, the
+  <strong>ground troops</strong> fight each other. The infantry mode determines how your soldiers act:
+</p>
+<ul>
+  <li><span class="f1"><strong>Attack</strong></span> — Soldiers fight aggressively (combat strength = soldiers × living-conditions factor)</li>
+  <li><span class="f2"><strong>Defense</strong></span> — Soldiers fight defensively (+25% bonus + 25 points per fort)</li>
+</ul>
+<p>
+  <strong>Note:</strong> This mode only affects the infantry on the planet,
+  <em>not</em> the ships in space. Ships always attack enemy ships automatically.
+</p>
+
+<h3>Planet defense</h3>
+<p>If you own all 8 sectors of a planet:</p>
+<ul>
+  <li><strong>From 7 sectors:</strong> The planet has interceptor rockets against enemy ships.</li>
+  <li><strong>With 8 sectors:</strong> Additional shield (with limited HP) and more rockets.</li>
+</ul>
+
+<h3>Conquest by transporter</h3>
+<ol>
+  <li>Build <strong>soldiers</strong> on your planet.</li>
+  <li>Build a <strong>transporter</strong> (requires 100 soldiers + at least 3 sectors).</li>
+  <li>Select the transporter and right-click the target planet.</li>
+  <li>The transporter flies there and lands 100 soldiers.</li>
+  <li>If several factions occupy the same planet, the soldiers fight each other.</li>
+  <li>The faction with the higher combat strength wins and the losing one loses soldiers.</li>
+</ol>
+
+<!-- ==================== TIPS ==================== -->
+<h2 id="tips">Tips for beginners</h2>
+<ul>
+  <li>Produce soldiers first and build up your planet (more sectors = more production options).</li>
+  <li>Build fighters early to protect your territory from enemy ships.</li>
+  <li>Transporters are the only way to conquer new planets — build them as soon as you have enough sectors and soldiers.</li>
+  <li>A planet with <strong>no active production order</strong> has 25% more infantry combat strength.</li>
+  <li>In defense mode with forts your ground troops are stronger — use that on important planets.</li>
+  <li>Don't forget to use the W key to switch between attack and defense.</li>
+  <li>Group ships with keys 1-8 for quick selection.</li>
+  <li>Save often using the Save button on the right!</li>
+</ul>
+
+<div class="tip">
+  <strong>Have fun playing!</strong>
+</div>
+
+<hr style="border-color: rgba(255,255,255,0.06); margin: 40px 0 20px 0;">
+<p style="text-align:center; color:#444; font-size:0.8em;">
+  USI - Star Fleet | A classic space strategy game
+</p>
+
+</section>
+
+<script>
+(function () {
+  var sections = {
+    de: document.getElementById('content-de'),
+    en: document.getElementById('content-en')
+  };
+  var buttons = Array.prototype.slice.call(document.querySelectorAll('.lang-tabs button'));
+  var titles = {
+    de: 'USI - Star Fleet | Spielanleitung',
+    en: 'USI - Star Fleet | Player Guide'
+  };
+
+  /* Shared preference with the game (language.js uses the same key) */
+  var saved = null;
+  try { saved = localStorage.getItem('usi-lang'); } catch (e) { }
+  var current = (saved === 'en' || saved === 'de') ? saved : 'de';
+
+  function apply(lang) {
+    if (lang !== 'de' && lang !== 'en') return;
+    current = lang;
+    sections.de.hidden = (lang !== 'de');
+    sections.en.hidden = (lang !== 'en');
+    document.documentElement.lang = lang;
+    document.title = titles[lang];
+    buttons.forEach(function (btn) {
+      var active = btn.getAttribute('data-lang') === lang;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    try { localStorage.setItem('usi-lang', lang); } catch (e) { }
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      apply(btn.getAttribute('data-lang'));
+    });
+  });
+
+  apply(current);
+})();
+</script>
 
 </body>
 </html>
