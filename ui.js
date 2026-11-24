@@ -94,16 +94,6 @@ function drawTextButton(r, label, colorIdx, fontPx) {
   DrawText(tx, ty, label, colorIdx, fontPx);
 }
 
-/* Draw a framed language button; the active language is highlighted */
-function drawLangButton(r, label, active, fontPx) {
-  DrawFilledRectUnclipped(r.x, r.y, r.w, r.h, 8);
-  DrawRect(r.x, r.y, r.w, r.h, active ? 15 : 7);
-  var tw = MeasureTextPx(label, fontPx);
-  var tx = Math.round(r.x + (r.w - tw) / 2);
-  var ty = Math.round(r.y + (r.h - fontPx * 0.8) / 2);
-  DrawText(tx, ty, label, active ? 11 : 7, fontPx);
-}
-
 /* ================================================================ */
 /* renderUI — Main UI render function (called each frame)            */
 /* ================================================================ */
@@ -127,7 +117,7 @@ function renderUI() {
     /* Normal game mode: render side panel UI */
     renderSidePanel();
 
-    /* Bottom-right in-game buttons: DE / EN / HILFE */
+    /* Bottom-right menu-bar buttons: DE/EN toggle + HILFE */
     renderInGameMenuButtons();
   }
 
@@ -571,9 +561,6 @@ function renderCursor() {
     DrawPixel(mouseX + 1, mouseY, 15);
     DrawPixel(mouseX, mouseY - 1, 15);
     DrawPixel(mouseX, mouseY + 1, 15);
-  } else if (!pview && isMouseDown) {
-    /* Small circle when clicking */
-    DrawCircle(mouseX, mouseY, 3, 14);
   } else {
     /* Normal arrow cursor */
     DrawPixel(mouseX, mouseY, 15);
@@ -592,14 +579,13 @@ function renderPauseIndicator() {
 }
 
 /* ================================================================ */
-/* renderInGameMenuButtons — DE/EN + HILFE at bottom-right of game  */
+/* renderInGameMenuButtons — DE/EN toggle + HILFE in the menu bar   */
 /* ================================================================ */
 function renderInGameMenuButtons() {
   var L = getInGameMenuLayout();
   var fontPx = Math.max(10, Math.round(11 * uiScale));
 
-  drawLangButton(L.de, t('lang_de'), getLang() === 'de', fontPx);
-  drawLangButton(L.en, t('lang_en'), getLang() === 'en', fontPx);
+  drawTextButton(L.lang, t('lang_de') + '/' + t('lang_en'), 11, fontPx);
   drawTextButton(L.help, t('help_link').toUpperCase(), 11, fontPx);
 }
 

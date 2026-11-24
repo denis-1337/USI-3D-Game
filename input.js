@@ -400,24 +400,32 @@ function getPlayerSelectionLayout() {
 }
 
 /* ================================================================ */
-/* Helper: getInGameMenuLayout — bottom-right game buttons          */
-/* (DE/EN language buttons + HILFE), shared by ui.js and input.js   */
+/* Helper: getInGameMenuLayout — menu-bar buttons bottom right      */
+/* (one DE/EN toggle + HILFE), shared by ui.js and input.js         */
 /* ================================================================ */
 function getInGameMenuLayout() {
-  var pad = Math.max(6, Math.round(8 * uiScale));
+  var layout = getPanelLayout();
+  var panelX = layout.panelX;
+  var panelW = layout.panelW;
+  var pad = Math.max(4, Math.round(8 * uiScale));
   var gap = Math.max(4, Math.round(6 * uiScale));
-  var btnH = Math.max(22, Math.round(28 * uiScale));
-  var deW = Math.max(36, Math.round(44 * uiScale));
-  var enW = deW;
-  var helpW = Math.max(70, Math.round(90 * uiScale));
-  var total = deW + enW + helpW + gap * 2;
-  var x = GameAreaWidth - pad - total;
-  var y = GameAreaHeight - pad - btnH;
+  var btnH = Math.max(20, Math.round(28 * uiScale));
+  var avail = Math.max(24, panelW - pad * 2);
+  var lang, help;
 
-  var de = { x: x, y: y, w: deW, h: btnH };
-  var en = { x: de.x + deW + gap, y: y, w: enW, h: btnH };
-  var help = { x: en.x + enW + gap, y: y, w: helpW, h: btnH };
-  return { de: de, en: en, help: help };
+  if (avail < 110) {
+    /* Narrow menu bar: stack the two buttons at the bottom */
+    lang = { x: panelX + pad, y: curH - pad - btnH - gap - btnH,
+             w: avail, h: btnH };
+    help = { x: panelX + pad, y: curH - pad - btnH, w: avail, h: btnH };
+  } else {
+    /* Normal menu bar: one language toggle and HELP side by side */
+    var btnW = Math.floor((avail - gap) / 2);
+    lang = { x: panelX + pad, y: curH - pad - btnH, w: btnW, h: btnH };
+    help = { x: lang.x + btnW + gap, y: lang.y, w: btnW, h: btnH };
+  }
+
+  return { lang: lang, help: help };
 }
 
 /* ================================================================ */
@@ -528,9 +536,14 @@ function initInput(canvasEl) {
     _keyDown[e.code] = false;
   });
 
-  /* Clear held keys when the window loses focus (prevents stuck WASD panning) */
+  /* Clear held keys and mouse state when the window loses focus
+     (prevents stuck WASD panning and a stuck click cursor) */
   window.addEventListener('blur', function() {
     _keyDown = {};
+    isMouseDown = false;
+    _isMinimapDragging = false;
+    _isBoxSelecting = false;
+    isRightDown = false;
   });
 
   /* --- Mouse events --- */
@@ -574,19 +587,17 @@ function initInput(canvasEl) {
         return;
       }
 
-      /* Bottom-right in-game buttons: DE / EN / HILFE */
+      /* Bottom-right menu-bar buttons: DE/EN toggle + HILFE */
       if (!pview) {
         var gm = getInGameMenuLayout();
-        if (inRect(mouseX, mouseY, gm.de.x, gm.de.y, gm.de.w, gm.de.h)) {
-          setLang('de');
-          return;
-        }
-        if (inRect(mouseX, mouseY, gm.en.x, gm.en.y, gm.en.w, gm.en.h)) {
-          setLang('en');
+        if (inRect(mouseX, mouseY, gm.lang.x, gm.lang.y, gm.lang.w, gm.lang.h)) {
+          setLang(getLang() === 'de' ? 'en' : 'de');
+          isMouseDown = false;
           return;
         }
         if (inRect(mouseX, mouseY, gm.help.x, gm.help.y, gm.help.w, gm.help.h)) {
-          window.open('help.html', '_blank');
+          isMouseDown = false;
+          window.open('help.html?fromGame=1', '_blank');
           return;
         }
       }

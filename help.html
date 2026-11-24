@@ -75,6 +75,9 @@
       background: rgba(255,170,0,0.1);
     }
 
+    /* Opened from the in-game menu in a new tab: no "back to game" link */
+    body.from-game a.back-link { display: none; }
+
     .nav-list {
       list-style: none;
       padding: 0;
@@ -361,7 +364,7 @@
   <tr><td>Klick auf Mini-Map</td><td>Kamera zum gewählten Bereich bewegen</td></tr>
   <tr><td>Mausrad</td><td>Kamera um den Cursor zoomen; über der Mini-Map wird zur Bildmitte gezoomt</td></tr>
   <tr><td>Maus am Bildschirmrand</td><td>Screen-Edge-Scrolling: Kamera in die Richtung des Rands verschieben</td></tr>
-  <tr><td>DE/EN, HILFE unten rechts</td><td>Sprache umschalten; HILFE &ouml;ffnet diese Anleitung in einem neuen Tab</td></tr>
+  <tr><td>DE/EN, HILFE in der rechten Men&uuml;leiste</td><td>Sprache umschalten; HILFE &ouml;ffnet diese Anleitung in einem neuen Tab</td></tr>
 </table>
 
 <h3>Tastatur</h3>
@@ -681,7 +684,7 @@
   <tr><td>Click on the mini-map</td><td>Move the camera to the chosen area</td></tr>
   <tr><td>Mouse wheel</td><td>Zoom the camera toward the cursor; over the mini-map it zooms to the center of the view</td></tr>
   <tr><td>Mouse at the screen edge</td><td>Screen-edge scrolling: pan the camera in that direction</td></tr>
-  <tr><td>DE/EN, HELP bottom right</td><td>Switch the language; HELP opens this guide in a new tab</td></tr>
+  <tr><td>DE/EN, HELP in the right menu bar</td><td>Switch the language; HELP opens this guide in a new tab</td></tr>
 </table>
 
 <h3>Keyboard</h3>
@@ -975,6 +978,11 @@
     } catch (e) { }
   }
   var current = (saved === 'en' || saved === 'de') ? saved : 'en';
+
+  /* When opened from the in-game menu, hide the "back to game" link */
+  if (/[?&]fromGame=1(?:&|$)/.test(location.search)) {
+    document.body.classList.add('from-game');
+  }
 
   function apply(lang) {
     if (lang !== 'de' && lang !== 'en') return;
