@@ -101,9 +101,6 @@ function runPlayerSelectionLoop() {
     /* Render player selection on overlay */
     renderPlayerSelection();
 
-    /* Render cursor */
-    renderCursor();
-
     /* Check if player confirmed selection */
     if (!isPlayerSelectionActive()) {
       snr = getPlayerSelectionChoice();
@@ -385,9 +382,6 @@ function _gameLoopBody() {
 
     /* ---- UI OVERLAY (2D) ---- */
     renderUI();
-
-    /* ---- CURSOR (2D) ---- */
-    renderCursor();
 
     /* ---- BOX SELECTION (2D overlay) — AFTER renderUI so it's not cleared ---- */
     if (_isBoxSelecting && rahmen) {

@@ -6,7 +6,6 @@
  *   - Save/Load buttons
  *   - Planet management menu (when pview is true)
  *   - Selection frames around selected ships
- *   - Mouse cursor (crosshair/circle/arrow)
  *   - Pause indicator
  *   - Player selection screen
  *
@@ -33,7 +32,6 @@
  *   - renderFactionInfo(): render faction ship counts
  *   - renderPlanetMenu(): render planet management menu (delegates to pmenu)
  *   - renderPlayerSelection(): render initial player selection screen
- *   - renderCursor(): render mouse cursor
  */
 
 /* Faction colors for minimap — module-scope to avoid per-frame allocation */
@@ -121,8 +119,7 @@ function renderUI() {
     renderInGameMenuButtons();
   }
 
-  /* Always render cursor and pause indicator on top */
-  renderCursor();
+  /* Always render pause indicator on top */
   if (paused) {
     renderPauseIndicator();
   }
@@ -535,38 +532,6 @@ function renderSelectionFrames() {
 function renderBoxSelection() {
   if (rahmen && isMouseDown) {
     DrawRect(boxR.x, boxR.y, boxR.w, boxR.h, 1);
-  }
-}
-
-/* ================================================================ */
-/* renderCursor — Render mouse cursor based on game state            */
-/* ================================================================ */
-function renderCursor() {
-  /* Confine to screen bounds */
-  if (mouseX < 0 || mouseY < 0 || mouseX >= curW || mouseY >= curH) return;
-
-  if (typeof isPlayerSelectionActive === 'function' && isPlayerSelectionActive()) {
-    /* Arrow cursor during player selection */
-    DrawPixel(mouseX, mouseY, 15);
-    DrawPixel(mouseX + 1, mouseY + 1, 15);
-    DrawPixel(mouseX - 1, mouseY + 1, 15);
-    DrawPixel(mouseX, mouseY + 2, 15);
-    return;
-  }
-
-  if (!pview && befehl) {
-    /* Crosshair when giving orders */
-    DrawPixel(mouseX, mouseY, 15);
-    DrawPixel(mouseX - 1, mouseY, 15);
-    DrawPixel(mouseX + 1, mouseY, 15);
-    DrawPixel(mouseX, mouseY - 1, 15);
-    DrawPixel(mouseX, mouseY + 1, 15);
-  } else {
-    /* Normal arrow cursor */
-    DrawPixel(mouseX, mouseY, 15);
-    DrawPixel(mouseX + 1, mouseY + 1, 15);
-    DrawPixel(mouseX - 1, mouseY + 1, 15);
-    DrawPixel(mouseX, mouseY + 2, 15);
   }
 }
 
